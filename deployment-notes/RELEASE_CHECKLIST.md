@@ -32,6 +32,18 @@ convention.
 - [ ] Upload/install the new version
 - [ ] If a migration shipped: deactivate, reactivate, confirm it ran
 - [ ] Confirm the admin menu and Settings screen load without errors
+- [ ] **Email (first release with G04, then whenever mail changes):**
+      `funds@rotaryinthevale.org` exists as a mailbox or alias and is covered
+      by SPF/DKIM in SiteGround Site Tools → Email → Authentication; send one
+      test application to a controlled inbox and check it is not marked spam
+- [ ] **Scheduled sending:** SiteGround Site Tools → Devs → Cron Jobs has
+      `wget -q -O - https://rotaryinthevale.org/wp-cron.php?doing_wp_cron >/dev/null 2>&1`
+      every 5 minutes, and `define( 'DISABLE_WP_CRON', true );` is in
+      wp-config.php — **or** a decision recorded that site traffic is enough.
+      (Check whether the sibling plugins' owners want the same; it affects the
+      whole site's WP-Cron, not just this plugin)
+- [ ] Rotary Grants → Notifications shows no unexpected Failed rows; Settings
+      → "Pause sending" is **unticked** before opening a round
 - [ ] Confirm Settings → General → Timezone is a **city** (London), not a
       fixed "UTC+0" offset — round opening/closing times depend on it, and a
       fixed offset ignores British Summer Time (the round screen warns if so)

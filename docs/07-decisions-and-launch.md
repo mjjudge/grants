@@ -18,7 +18,7 @@ guessed.
 | Deadline | Configured date/time in WordPress timezone | Open/close dates and late-application handling |
 | Award limits | No invented cap | Whether a cap/minimum is wanted, per fund |
 | Repeat applicants | Allowed; previous history visible | Repeat-award rules and multiple applications per round |
-| Contact | Named organisation representative | Help inbox, ownership, and notification sender |
+| Contact | Named organisation representative | Help inbox and ownership. **Notification sender decided:** `funds@rotaryinthevale.org` (editable in Settings; Reply-To = help email) — see `backlog/DECISIONS.md` DEC-011 |
 | Publicity | Preserve current undertaking visibly, per fund | Exceptions, photo handling, and safeguarding |
 | Future-round email | Separate optional unticked preference | Approved wording, withdrawal route, and responsible entity |
 | Bank details | Treasurer verifies outside WordPress | Existing verification/payment process |

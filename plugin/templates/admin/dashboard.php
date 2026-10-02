@@ -8,6 +8,9 @@
  *   $privacy_set     bool    Whether a privacy notice link is configured.
  *   $can_settings    bool    Whether the current user may open Settings.
  *   $settings_url    string  URL of the Settings screen.
+ *   $mail_counts     array<string,int>  Notification counts by status (pending/sent/failed).
+ *   $mail_paused     bool    Whether email sending is paused in Settings.
+ *   $mail_url        string  URL of the Notifications screen.
  */
 defined( 'ABSPATH' ) || exit;
 ?>
@@ -15,6 +18,24 @@ defined( 'ABSPATH' ) || exit;
     <h1><?php esc_html_e( 'Rotary Grants', 'rotary-grants' ); ?></h1>
 
     <p><?php esc_html_e( 'Applications, decisions and payments will appear here as they are built. Funding rounds can be set up under Funding Rounds; nothing can be submitted yet.', 'rotary-grants' ); ?></p>
+
+    <?php if ( $mail_counts['failed'] > 0 ) : ?>
+        <div class="notice notice-error inline"><p>
+            <?php
+            /* translators: %d: number of failed emails */
+            echo esc_html( sprintf( _n( '%d email could not be sent.', '%d emails could not be sent.', $mail_counts['failed'], 'rotary-grants' ), $mail_counts['failed'] ) );
+            ?>
+            <a href="<?php echo esc_url( add_query_arg( 'status', 'failed', $mail_url ) ); ?>"><?php esc_html_e( 'Review failed emails', 'rotary-grants' ); ?></a>
+        </p></div>
+    <?php endif; ?>
+    <?php if ( $mail_paused ) : ?>
+        <div class="notice notice-warning inline"><p>
+            <?php
+            /* translators: %d: number of held emails */
+            echo esc_html( sprintf( __( 'Email sending is paused in Settings. %d email(s) are being held.', 'rotary-grants' ), $mail_counts['pending'] ) );
+            ?>
+        </p></div>
+    <?php endif; ?>
 
     <h2><?php esc_html_e( 'Configuration', 'rotary-grants' ); ?></h2>
     <table class="widefat striped grants-config-status">

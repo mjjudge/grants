@@ -31,6 +31,7 @@ class Menu {
         add_submenu_page( 'grants-dashboard', __( 'Applications', 'rotary-grants' ),           __( 'Applications', 'rotary-grants' ),   'grants_access',        'grants-applications', [ new ApplicationListPage(), 'render' ] );
         add_submenu_page( 'grants-dashboard', __( 'Funding Rounds', 'rotary-grants' ),         __( 'Funding Rounds', 'rotary-grants' ), 'grants_access',        'grants-rounds',     [ $this, 'render_rounds' ] );
         add_submenu_page( 'grants-dashboard', __( 'Add Funding Round', 'rotary-grants' ),      __( 'Add Round', 'rotary-grants' ),      'grants_manage_rounds', 'grants-rounds-add', [ new RoundEditPage(), 'render_add' ] );
+        add_submenu_page( 'grants-dashboard', __( 'Notifications', 'rotary-grants' ),          __( 'Notifications', 'rotary-grants' ),  'grants_access',        'grants-notifications', [ new NotificationsPage(), 'render' ] );
         add_submenu_page( 'grants-dashboard', __( 'Rotary Grants Settings', 'rotary-grants' ), __( 'Settings', 'rotary-grants' ),       'grants_manage_settings', 'grants-settings', [ new SettingsPage(), 'render' ] );
         // Access management is administrator-only (DEC-008), not a grants_* capability.
         add_submenu_page( 'grants-dashboard', __( 'Rotary Grants Access', 'rotary-grants' ),   __( 'Access', 'rotary-grants' ),         'promote_users',          'grants-access',   [ new AccessPage(), 'render' ] );

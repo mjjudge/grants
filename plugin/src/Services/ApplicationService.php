@@ -117,6 +117,14 @@ class ApplicationService {
             'source'    => 'public_form',
         ] );
 
+        // Only now, after COMMIT, queue the emails. A queueing problem must
+        // never undo or duplicate the saved application.
+        try {
+            ( new NotificationService() )->queue_for_application( $app_id );
+        } catch ( \Throwable $e ) {
+            error_log( 'Rotary Grants: could not queue notifications for application ' . $app_id . ': ' . get_class( $e ) ); // phpcs:ignore WordPress.PHP.DevelopmentFunctions
+        }
+
         return [ 'application_id' => $app_id, 'reference' => $ref, 'replayed' => false ];
     }
 

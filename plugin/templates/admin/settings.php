@@ -5,7 +5,9 @@
  * Available variables:
  *   $values         array<string,string>  Field values keyed by setting key
  *                                         ('help_email', 'notification_recipients',
- *                                         'privacy_notice_url', 'privacy_notice_version').
+ *                                         'privacy_notice_url', 'privacy_notice_version',
+ *                                         'mail_from_name', 'mail_from_address',
+ *                                         'notifications_paused' ['1'|'0']).
  *                                         After a failed save, these are what was submitted.
  *   $errors         array<string,string>  Error messages keyed by setting key
  *                                         (or 'forbidden' / 'db_error').
@@ -25,6 +27,8 @@ $field_ids        = [
     'notification_recipients' => 'grants-notification-recipients',
     'privacy_notice_url'      => 'grants-privacy-notice-url',
     'privacy_notice_version'  => 'grants-privacy-notice-version',
+    'mail_from_name'          => 'grants-mail-from-name',
+    'mail_from_address'       => 'grants-mail-from-address',
 ];
 ?>
 <div class="wrap grants-admin">
@@ -123,6 +127,42 @@ $field_ids        = [
                         <p class="grants-field-error" id="grants-privacy-notice-version-error"><?php echo esc_html( $version_error ); ?></p>
                     <?php endif; ?>
                     <p class="description" id="grants-privacy-notice-version-desc"><?php esc_html_e( 'A short label such as "2026-1". Change it whenever the notice wording changes — each application records the version that was shown.', 'rotary-grants' ); ?></p>
+                </td>
+            </tr>
+        </table>
+
+        <h2><?php esc_html_e( 'Email sending', 'rotary-grants' ); ?></h2>
+        <table class="form-table" role="presentation">
+            <?php
+            foreach ( [
+                'mail_from_name'    => [ __( 'From name', 'rotary-grants' ), 'text', __( 'Shown as the sender of acknowledgement and staff emails.', 'rotary-grants' ) ],
+                'mail_from_address' => [ __( 'From address', 'rotary-grants' ), 'email', __( 'Must be an address on the site\'s own domain so SiteGround\'s mail authentication (SPF/DKIM) covers it. Replies go to the help/contact email above.', 'rotary-grants' ) ],
+            ] as $key => [ $label, $type, $desc ] ) :
+                $err = $errors[ $key ] ?? '';
+                $id  = $field_ids[ $key ];
+                ?>
+                <tr>
+                    <th scope="row"><label for="<?php echo esc_attr( $id ); ?>"><?php echo esc_html( $label ); ?></label></th>
+                    <td>
+                        <input type="<?php echo esc_attr( $type ); ?>" id="<?php echo esc_attr( $id ); ?>" name="<?php echo esc_attr( $key ); ?>" class="regular-text"
+                               value="<?php echo esc_attr( $values[ $key ] ?? '' ); ?>"
+                               aria-describedby="<?php echo esc_attr( $id . '-desc' . ( $err ? ' ' . $id . '-error' : '' ) ); ?>"
+                               <?php echo $err ? 'aria-invalid="true"' : ''; ?>>
+                        <?php if ( $err ) : ?>
+                            <p class="grants-field-error" id="<?php echo esc_attr( $id . '-error' ); ?>"><?php echo esc_html( $err ); ?></p>
+                        <?php endif; ?>
+                        <p class="description" id="<?php echo esc_attr( $id . '-desc' ); ?>"><?php echo esc_html( $desc ); ?></p>
+                    </td>
+                </tr>
+            <?php endforeach; ?>
+            <tr>
+                <th scope="row"><?php esc_html_e( 'Pause sending', 'rotary-grants' ); ?></th>
+                <td>
+                    <label for="grants-notifications-paused">
+                        <input type="checkbox" id="grants-notifications-paused" name="notifications_paused" value="1" <?php checked( ( $values['notifications_paused'] ?? '0' ) === '1' ); ?>>
+                        <?php esc_html_e( 'Hold all Rotary Grants emails in the queue instead of sending them', 'rotary-grants' ); ?>
+                    </label>
+                    <p class="description"><?php esc_html_e( 'Applications are still accepted and saved while paused. Untick to send everything that has been held (within a few minutes, or straight away from the Notifications screen).', 'rotary-grants' ); ?></p>
                 </td>
             </tr>
         </table>

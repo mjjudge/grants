@@ -200,16 +200,38 @@ publicity and presentation wording and a maximum award, one without. Pages:
 
 ## Section 4 — Receipt and notifications (G04) **[SMOKE]**
 
-- [ ] Successful submission shows a receipt only after the application has
-      actually committed to the database
-- [ ] Applicant acknowledgement is queued/sent with reference, round, amount,
-      and help route — no internal notes or unrelated history
-- [ ] **Every address in the configured notification-recipient list receives
-      the new-application staff notification**, distinct from the applicant
-      email, with no full copy of submitted answers
-- [ ] A mail failure (simulate via a broken test inbox) does not lose or
-      duplicate the saved application, and does not show as an error to the
-      applicant
+LocalWP: emails land in the site's Mailpit (Local → site → Tools → Mailpit).
+Settings: help email, **two** notification recipients.
+
+- [ ] Settings shows From name "Rotary in the Vale", From address
+      `funds@rotaryinthevale.org`, Pause sending unticked; invalid From
+      address or a name containing `<` is refused
+- [ ] Submit an application → the receipt says a copy will be emailed to the
+      applicant's address; within seconds Mailpit has **three** messages:
+      one acknowledgement to the applicant and one notice to **each**
+      recipient
+- [ ] All three are from "Rotary in the Vale <funds@rotaryinthevale.org>"
+      with Reply-To the help email
+- [ ] Acknowledgement: reference, round, amount, received time, help email;
+      says eligibility is not yet assessed; contains none of the free-text
+      answers
+- [ ] Staff notice: reference, fund, round, organisation, amount and an admin
+      link that opens the application (after login); no free-text answers,
+      no applicant contact details
+- [ ] Rotary Grants → Notifications lists all three as Sent
+- [ ] Tick **Pause sending**, submit another application → it is saved and
+      the receipt shown; nothing arrives; Notifications shows three Waiting
+      and the dashboard says sending is paused. Untick → "Send waiting emails
+      now" (or wait ≤5 min) → they arrive
+- [ ] Simulate a mail failure (e.g. set the site's SMTP to an unreachable
+      host, or temporarily break Mailpit) → application still saved and
+      receipt shown; Notifications shows Waiting with a retry time and an
+      error code; restore mail → sent on the next run
+- [ ] A Failed row (after 5 attempts) appears on the dashboard warning and
+      can be re-sent with "Retry now"; the retry appears in the audit log
+- [ ] Remove one recipient in Settings, submit again → only the remaining
+      recipient is notified; earlier Sent rows for the removed address remain
+- [ ] An editor without grants access cannot open Notifications (403)
 
 ## Section 5 — Organisation matching and staff applications (G05)
 

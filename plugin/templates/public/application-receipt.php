@@ -4,7 +4,7 @@
  *
  * Available variables:
  *   $receipt    array|null  [ reference, round_label, fund_name, amount_pence (int),
- *                             organisation, submitted_at (UTC) ] for this browser's
+ *                             organisation, submitted_at (UTC), email ] for this browser's
  *                             submission, or null if none is held for this session.
  *   $help_email string      Help/contact email from Settings.
  *   $form_url   string      URL of the form without the receipt flag.
@@ -30,6 +30,14 @@ use Rotary\Grants\Support\SiteTime;
             <dt><?php esc_html_e( 'Received', 'rotary-grants' ); ?></dt>
             <dd><?php echo esc_html( SiteTime::display( $receipt['submitted_at'] ) ); ?></dd>
         </dl>
+        <?php if ( ! empty( $receipt['email'] ) ) : ?>
+            <p>
+                <?php
+                /* translators: %s: applicant email address */
+                echo esc_html( sprintf( __( 'We will also email a copy of this confirmation to %s. If it does not arrive, please check your spam folder — your application has been received either way.', 'rotary-grants' ), $receipt['email'] ) );
+                ?>
+            </p>
+        <?php endif; ?>
         <p><?php esc_html_e( 'Submitting an application does not guarantee funding. The committee will be in touch once applications have been considered.', 'rotary-grants' ); ?></p>
     <?php else : ?>
         <h2><?php esc_html_e( 'Thank you', 'rotary-grants' ); ?></h2>

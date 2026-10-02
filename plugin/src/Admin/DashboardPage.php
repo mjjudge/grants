@@ -21,6 +21,9 @@ class DashboardPage {
         $privacy_set     = $settings->get( \Rotary\Grants\Services\SettingsService::PRIVACY_NOTICE_URL ) !== '';
         $can_settings    = current_user_can( 'grants_manage_settings' );
         $settings_url    = add_query_arg( 'page', 'grants-settings', admin_url( 'admin.php' ) );
+        $mail_counts     = ( new \Rotary\Grants\Services\NotificationService() )->counts();
+        $mail_paused     = $settings->notifications_paused();
+        $mail_url        = add_query_arg( 'page', 'grants-notifications', admin_url( 'admin.php' ) );
 
         include GRANTS_PLUGIN_DIR . 'templates/admin/dashboard.php';
     }

@@ -4,6 +4,7 @@ namespace Rotary\Grants\Public;
 
 use Rotary\Grants\Services\ApplicationForm;
 use Rotary\Grants\Services\ApplicationService;
+use Rotary\Grants\Services\NotificationService;
 use Rotary\Grants\Services\RoundService;
 use Rotary\Grants\Services\SettingsService;
 use Rotary\Grants\Support\Money;
@@ -155,6 +156,19 @@ class ApplicationFormHandler {
             return;
         }
 
+        if ( ! $result['replayed'] ) {
+            // Send the queued emails after the browser has its redirect, so
+            // the applicant never waits on (or sees) the mail server. Anything
+            // that fails here is retried by cron.
+            $application_id = $result['application_id'];
+            add_action( 'shutdown', static function () use ( $application_id ): void {
+                if ( function_exists( 'fastcgi_finish_request' ) ) {
+                    fastcgi_finish_request();
+                }
+                ( new NotificationService() )->process_due( $application_id );
+            } );
+        }
+
         set_transient( self::receipt_key(), [
             'reference'     => $result['reference'],
             'round_label'   => $round->label,
@@ -162,6 +176,7 @@ class ApplicationFormHandler {
             'amount_pence'  => $clean['requested_pence'],
             'organisation'  => $clean['organisation_name'],
             'submitted_at'  => SiteTime::now_utc(),
+            'email'         => $clean['contact_email'],
         ], self::RECEIPT_TTL );
 
         $this->redirect_to_receipt();

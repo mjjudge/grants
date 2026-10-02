@@ -18,6 +18,9 @@ class SettingsService {
     public const NOTIFICATION_RECIPIENTS = 'notification_recipients';
     public const PRIVACY_NOTICE_URL      = 'privacy_notice_url';
     public const PRIVACY_NOTICE_VERSION  = 'privacy_notice_version';
+    public const MAIL_FROM_NAME          = 'mail_from_name';
+    public const MAIL_FROM_ADDRESS       = 'mail_from_address';
+    public const NOTIFICATIONS_PAUSED    = 'notifications_paused';
 
     /** Upper bound on staff notification recipients — a typo guard, not a policy. */
     public const MAX_RECIPIENTS = 20;
@@ -28,6 +31,10 @@ class SettingsService {
         self::NOTIFICATION_RECIPIENTS => '',
         self::PRIVACY_NOTICE_URL      => '',
         self::PRIVACY_NOTICE_VERSION  => '',
+        // Sender identity confirmed by the project owner at G04.
+        self::MAIL_FROM_NAME          => 'Rotary in the Vale',
+        self::MAIL_FROM_ADDRESS       => 'funds@rotaryinthevale.org',
+        self::NOTIFICATIONS_PAUSED    => '0',
     ];
 
     /** @var array<string, string>|null Per-request cache of stored values. */
@@ -38,6 +45,10 @@ class SettingsService {
             return '';
         }
         return $this->load()[ $key ] ?? self::DEFAULTS[ $key ];
+    }
+
+    public function notifications_paused(): bool {
+        return $this->get( self::NOTIFICATIONS_PAUSED ) === '1';
     }
 
     public function help_email(): string {
@@ -138,6 +149,21 @@ class SettingsService {
         }
         $clean[ self::PRIVACY_NOTICE_VERSION ] = $version;
 
+        // Sender identity — empty means "use the default".
+        $from_address = trim( (string) ( $input[ self::MAIL_FROM_ADDRESS ] ?? '' ) );
+        if ( $from_address !== '' && ! is_email( $from_address ) ) {
+            $errors->add( self::MAIL_FROM_ADDRESS, __( 'Enter a valid email address, or leave the field empty to use the default.', 'rotary-grants' ) );
+        }
+        $clean[ self::MAIL_FROM_ADDRESS ] = $from_address !== '' ? $from_address : self::DEFAULTS[ self::MAIL_FROM_ADDRESS ];
+
+        $from_name = trim( (string) preg_replace( '/[\r\n\t]+/', ' ', (string) ( $input[ self::MAIL_FROM_NAME ] ?? '' ) ) );
+        if ( mb_strlen( $from_name ) > 100 || preg_match( '/[<>"@]/', $from_name ) ) {
+            $errors->add( self::MAIL_FROM_NAME, __( 'Enter a plain name of 100 characters or fewer, without < > " or @.', 'rotary-grants' ) );
+        }
+        $clean[ self::MAIL_FROM_NAME ] = $from_name !== '' ? $from_name : self::DEFAULTS[ self::MAIL_FROM_NAME ];
+
+        $clean[ self::NOTIFICATIONS_PAUSED ] = ( $input[ self::NOTIFICATIONS_PAUSED ] ?? '' ) === '1' ? '1' : '0';
+
         if ( $errors->has_errors() ) {
             return $errors;
         }
@@ -182,6 +208,7 @@ class SettingsService {
                     'help_email_set'  => $clean[ self::HELP_EMAIL ] !== '',
                     'recipient_count' => count( $parsed['valid'] ),
                     'privacy_version' => $clean[ self::PRIVACY_NOTICE_VERSION ],
+                    'paused'          => $clean[ self::NOTIFICATIONS_PAUSED ] === '1',
                 ]
             );
         }

@@ -65,3 +65,12 @@
 .grants-admin .grants-filters {
     margin: 12px 0;
 }
+
+.grants-admin .grants-mail-status--failed {
+    color: #b32d2e;
+    font-weight: 600;
+}
+
+.grants-admin .grants-mail-status--sent {
+    color: #007017;
+}

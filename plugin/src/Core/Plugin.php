@@ -14,11 +14,13 @@ class Plugin {
         );
 
         ( new \Rotary\Grants\Public\ApplicationFormHandler() )->register();
+        \Rotary\Grants\Services\NotificationService::register_cron();
 
         if ( is_admin() ) {
             ( new \Rotary\Grants\Admin\Menu() )->register();
             ( new \Rotary\Grants\Admin\SettingsPage() )->register();
             ( new \Rotary\Grants\Admin\RoundEditPage() )->register();
+            ( new \Rotary\Grants\Admin\NotificationsPage() )->register();
             ( new \Rotary\Grants\Admin\UserAccessSection() )->register();
             add_action( 'admin_enqueue_scripts', [ $this, 'enqueue_admin_assets' ] );
         }

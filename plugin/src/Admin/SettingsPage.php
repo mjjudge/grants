@@ -7,8 +7,8 @@ use Rotary\Grants\Services\SettingsService;
 defined( 'ABSPATH' ) || exit;
 
 /**
- * Settings screen: help/contact email, staff notification recipients, and
- * privacy notice link/version.
+ * Settings screen: help/contact email, staff notification recipients,
+ * privacy notice link/version, and email sender identity / pause switch.
  *
  * Routing:
  *   /wp-admin/admin.php?page=grants-settings   → form
@@ -38,6 +38,9 @@ class SettingsPage {
             SettingsService::NOTIFICATION_RECIPIENTS => $service->get( SettingsService::NOTIFICATION_RECIPIENTS ),
             SettingsService::PRIVACY_NOTICE_URL      => $service->get( SettingsService::PRIVACY_NOTICE_URL ),
             SettingsService::PRIVACY_NOTICE_VERSION  => $service->get( SettingsService::PRIVACY_NOTICE_VERSION ),
+            SettingsService::MAIL_FROM_NAME          => $service->get( SettingsService::MAIL_FROM_NAME ),
+            SettingsService::MAIL_FROM_ADDRESS       => $service->get( SettingsService::MAIL_FROM_ADDRESS ),
+            SettingsService::NOTIFICATIONS_PAUSED    => $service->get( SettingsService::NOTIFICATIONS_PAUSED ),
         ];
         $errors = [];
 
@@ -68,6 +71,9 @@ class SettingsPage {
             SettingsService::NOTIFICATION_RECIPIENTS => sanitize_textarea_field( wp_unslash( $_POST['notification_recipients'] ?? '' ) ),
             SettingsService::PRIVACY_NOTICE_URL      => sanitize_text_field( wp_unslash( $_POST['privacy_notice_url'] ?? '' ) ), // validated as an http(s) URL by the service
             SettingsService::PRIVACY_NOTICE_VERSION  => sanitize_text_field( wp_unslash( $_POST['privacy_notice_version'] ?? '' ) ),
+            SettingsService::MAIL_FROM_NAME          => sanitize_text_field( wp_unslash( $_POST['mail_from_name'] ?? '' ) ),
+            SettingsService::MAIL_FROM_ADDRESS       => sanitize_text_field( wp_unslash( $_POST['mail_from_address'] ?? '' ) ),
+            SettingsService::NOTIFICATIONS_PAUSED    => ( $_POST['notifications_paused'] ?? '' ) === '1' ? '1' : '',
         ];
 
         $result = ( new SettingsService() )->save( $input );
