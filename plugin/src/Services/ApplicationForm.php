@@ -81,6 +81,16 @@ final class ApplicationForm {
 
     private const MONEY = 'requested_amount_gbp';
 
+    public const MODE_PUBLIC = 'public';
+    public const MODE_STAFF  = 'staff';
+
+    /**
+     * Fields required when staff key in a paper/email/phone application —
+     * the minimum to identify it; everything else is recorded if supplied.
+     * (Contact email OR phone is also required.)
+     */
+    private const STAFF_REQUIRED = [ 'organisation_name', 'contact_name', 'proposed_use' ];
+
     /**
      * Every field name the form accepts.
      *
@@ -100,6 +110,24 @@ final class ApplicationForm {
     /** @return string[] */
     public static function checkbox_names(): array {
         return self::CHECKBOXES;
+    }
+
+    /** 'text' | 'url' | 'textarea' | 'choice' | 'checkbox' | 'money' */
+    public static function field_type( string $field ): string {
+        return match ( true ) {
+            isset( self::TEXT[ $field ] )            => 'text',
+            isset( self::URLS[ $field ] )            => 'url',
+            isset( self::TEXTAREAS[ $field ] )       => 'textarea',
+            isset( self::CHOICES[ $field ] )         => 'choice',
+            in_array( $field, self::CHECKBOXES, true ) => 'checkbox',
+            default                                  => 'money',
+        };
+    }
+
+    /** @return array<string,string> value => label for a choice field */
+    public static function choices( string $field ): array {
+        $labels = [ self::YES => __( 'Yes', 'rotary-grants' ), self::NO => __( 'No', 'rotary-grants' ), self::NOT_SURE => __( 'Not sure', 'rotary-grants' ) ];
+        return array_intersect_key( $labels, array_flip( self::CHOICES[ $field ] ?? [] ) );
     }
 
     public static function max_length( string $field ): int {
@@ -196,10 +224,12 @@ final class ApplicationForm {
      * @param array<string,string> $raw
      * @return array{0: array<string,mixed>, 1: \WP_Error}
      */
-    public static function validate( array $raw, object $round ): array {
+    public static function validate( array $raw, object $round, string $mode = self::MODE_PUBLIC ): array {
         $errors = new \WP_Error();
         $clean  = [];
         $labels = self::labels();
+        $staff  = $mode === self::MODE_STAFF;
+        $needed = static fn( string $f, bool $required ): bool => $required && ( ! $staff || in_array( $f, self::STAFF_REQUIRED, true ) );
 
         $required_msg = static fn( string $f ) => sprintf(
             /* translators: %s: field label */
@@ -213,7 +243,7 @@ final class ApplicationForm {
             if ( self::has_markup( (string) ( $raw[ $field ] ?? '' ) ) ) {
                 $errors->add( $field, __( 'Please remove the HTML or < > tags from this answer.', 'rotary-grants' ) );
             } elseif ( $value === '' ) {
-                if ( $required ) {
+                if ( $needed( $field, $required ) ) {
                     $errors->add( $field, $required_msg( $field ) );
                 }
             } elseif ( mb_strlen( $value ) > $max ) {
@@ -227,7 +257,7 @@ final class ApplicationForm {
             if ( self::has_markup( (string) ( $raw[ $field ] ?? '' ) ) ) {
                 $errors->add( $field, __( 'Please remove the HTML or < > tags from this answer.', 'rotary-grants' ) );
             } elseif ( $value === '' ) {
-                if ( $required ) {
+                if ( $needed( $field, $required ) ) {
                     $errors->add( $field, $required_msg( $field ) );
                 }
             } elseif ( mb_strlen( $value ) > $max ) {
@@ -253,7 +283,8 @@ final class ApplicationForm {
         foreach ( self::CHOICES as $field => $allowed ) {
             $value           = (string) ( $raw[ $field ] ?? '' );
             $clean[ $field ] = in_array( $value, $allowed, true ) ? $value : '';
-            if ( $clean[ $field ] === '' ) {
+            if ( $clean[ $field ] === '' && ( ! $staff || $value !== '' ) ) {
+                // Staff may leave a question unanswered if the paper form did.
                 $errors->add( $field, __( 'Choose an answer.', 'rotary-grants' ) );
             }
         }
@@ -263,6 +294,10 @@ final class ApplicationForm {
         }
 
         // --- Field-specific rules ---------------------------------------------
+
+        if ( $staff && $clean['contact_email'] === '' && $clean['contact_phone'] === '' && ! $errors->get_error_message( 'contact_email' ) ) {
+            $errors->add( 'contact_email', __( 'Enter an email address or a phone number for the contact.', 'rotary-grants' ) );
+        }
 
         if ( $clean['contact_email'] !== '' && ! $errors->get_error_message( 'contact_email' ) && ! is_email( $clean['contact_email'] ) ) {
             $errors->add( 'contact_email', __( 'Enter a valid email address, like name@example.org.', 'rotary-grants' ) );
@@ -314,7 +349,7 @@ final class ApplicationForm {
             'one_off_explanation'     => $clean['one_off_initiative'] === self::NOT_SURE,
         ];
         foreach ( $conditional as $field => $needed ) {
-            if ( $needed && $clean[ $field ] === '' && ! $errors->get_error_message( $field ) ) {
+            if ( $needed && ! $staff && $clean[ $field ] === '' && ! $errors->get_error_message( $field ) ) {
                 $errors->add( $field, __( 'Please explain — your answer above needs a short explanation.', 'rotary-grants' ) );
             }
         }
@@ -330,6 +365,11 @@ final class ApplicationForm {
             $must_tick[] = 'presentation_acknowledged';
         } else {
             $clean['presentation_acknowledged'] = false;
+        }
+        if ( $staff ) {
+            // Staff record what the paper/email application contained; ticks
+            // are evidence, not a gate.
+            $must_tick = [];
         }
         foreach ( $must_tick as $field ) {
             if ( ! $clean[ $field ] ) {

@@ -235,13 +235,68 @@ Settings: help email, **two** notification recipients.
 
 ## Section 5 — Organisation matching and staff applications (G05)
 
-- [ ] Two organisations sharing one contact email remain distinct records
-- [ ] Similar organisation names surface as staff match candidates, never an
-      automatic merge
-- [ ] A staff merge preserves both organisations' application history and
-      records a reason
-- [ ] Editing a contact's current details does not alter a previously
-      submitted application's snapshot
+Use clearly fake names (e.g. prefix "TEST") so they are easy to find.
+
+### 5a. Linking and matching
+
+- [ ] Submit two public applications from different organisations using the
+      **same** contact email. Each application page says "Not linked"; the
+      second does **not** suggest the first organisation because of the
+      email. Create a new organisation from each → two separate organisations
+- [ ] Submit "The TEST Lunch Club Ltd" after "TEST Lunch Club" exists → the
+      application suggests it with reason "same name"; nothing is linked until
+      you press "Link to this organisation"
+- [ ] A charity number matching an existing organisation is shown as a
+      reason; a different charity number lowers the suggestion
+- [ ] Linking creates the applicant as a contact of the organisation; linking
+      a second application from the same person reuses that contact
+- [ ] Changing an existing link requires a reason
+- [ ] Two applications from one organisation in the same round show
+      "Possible repeat application" on both
+
+### 5b. History is preserved
+
+- [ ] Correct the organisation's name (with a reason) and the contact's email
+      → the earlier application's "As submitted" section is unchanged;
+      "Correction history" on the organisation shows old → new values and
+      the reason
+- [ ] Add a new contact and mark the old one "No longer the contact" → the
+      old one stays listed as a former contact with dates and can't be edited
+- [ ] An applicant who ticked the future-rounds box shows "Yes" with
+      "application RG-…" as evidence; withdraw it (with how it was received)
+      → shows Withdrawn; re-linking that application does **not** turn it
+      back on; recording a new permission needs evidence and keeps the
+      history
+- [ ] `<prefix>grants_audit_events` rows for these actions contain field
+      names and ids only — no names or email addresses
+
+### 5c. Merging
+
+- [ ] Merge a duplicate organisation into another (reason required, confirm
+      dialog) → its applications and contacts appear on the kept one; the
+      merged one shows "merged into … Reason: …" with no edit form and no
+      longer appears in searches or suggestions
+
+### 5d. Staff-entered applications
+
+- [ ] Applications → "Enter a paper/email application": with only
+      organisation, contact name, phone, amount and use filled, and a source
+      chosen, it saves; the application shows "Entered by staff — Paper
+      form", who keyed it in and when
+- [ ] Saving with a missing source shows errors and keeps everything typed
+- [ ] For a closed round: a date received on the closing day is accepted as
+      on time; the day after is flagged **Late** and requires a reason; a date
+      before the opening date is also late; a future date is refused
+- [ ] "Email the applicant the standard acknowledgement" sends only the
+      acknowledgement (check Mailpit); leaving it unticked sends nothing
+- [ ] Pressing Save twice (or Back + Save) creates only one application
+
+### 5e. Permissions
+
+- [ ] A user with only `grants_access` can see Organisations and application
+      pages but has no link, edit, merge, contact or staff-entry controls,
+      and direct POSTs to those actions are refused (403)
+- [ ] An editor without grants capabilities is refused all of these pages
 
 ## Section 6 — Review and conflicts (G06)
 

@@ -29,6 +29,9 @@ class Menu {
 
         add_submenu_page( 'grants-dashboard', __( 'Rotary Grants', 'rotary-grants' ),          __( 'Dashboard', 'rotary-grants' ),      'grants_access',        'grants-dashboard',  [ new DashboardPage(), 'render' ] );
         add_submenu_page( 'grants-dashboard', __( 'Applications', 'rotary-grants' ),           __( 'Applications', 'rotary-grants' ),   'grants_access',        'grants-applications', [ new ApplicationListPage(), 'render' ] );
+        add_submenu_page( 'grants-dashboard', __( 'Enter Application', 'rotary-grants' ),      __( 'Enter Application', 'rotary-grants' ), 'grants_manage_organisations', 'grants-applications-add', [ new StaffApplicationPage(), 'render' ] );
+        add_submenu_page( 'grants-dashboard', __( 'Organisations', 'rotary-grants' ),          __( 'Organisations', 'rotary-grants' ),  'grants_access',        'grants-organisations', [ new OrganisationPage(), 'render' ] );
+        add_submenu_page( 'grants-dashboard', __( 'Add Organisation', 'rotary-grants' ),       __( 'Add Organisation', 'rotary-grants' ), 'grants_manage_organisations', 'grants-organisations-add', [ new OrganisationPage(), 'render_add' ] );
         add_submenu_page( 'grants-dashboard', __( 'Funding Rounds', 'rotary-grants' ),         __( 'Funding Rounds', 'rotary-grants' ), 'grants_access',        'grants-rounds',     [ $this, 'render_rounds' ] );
         add_submenu_page( 'grants-dashboard', __( 'Add Funding Round', 'rotary-grants' ),      __( 'Add Round', 'rotary-grants' ),      'grants_manage_rounds', 'grants-rounds-add', [ new RoundEditPage(), 'render_add' ] );
         add_submenu_page( 'grants-dashboard', __( 'Notifications', 'rotary-grants' ),          __( 'Notifications', 'rotary-grants' ),  'grants_access',        'grants-notifications', [ new NotificationsPage(), 'render' ] );

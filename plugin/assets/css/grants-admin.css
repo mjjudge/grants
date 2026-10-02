@@ -74,3 +74,34 @@
 .grants-admin .grants-mail-status--sent {
     color: #007017;
 }
+
+.grants-admin .grants-badge {
+    display: inline-block;
+    padding: 0 6px;
+    border-radius: 3px;
+    background: #f0f0f1;
+    font-size: 11px;
+    line-height: 18px;
+}
+
+.grants-admin .grants-badge--late {
+    background: #fcf0f1;
+    color: #b32d2e;
+    font-weight: 600;
+}
+
+.grants-admin .grants-row-former td {
+    color: #646970;
+}
+
+.grants-admin .grants-merge-row {
+    margin: 6px 0;
+}
+
+.grants-admin .grants-choice-inline {
+    margin-right: 12px;
+}
+
+.grants-admin .grants-search-results li {
+    margin-bottom: 6px;
+}

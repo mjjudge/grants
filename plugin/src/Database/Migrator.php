@@ -39,6 +39,13 @@ class Migrator {
         '0.5.0' => [
             Migrations\CreateNotificationsTable::class,
         ],
+        '0.6.0' => [
+            Migrations\CreateOrganisationsTable::class,
+            Migrations\CreateContactsTable::class,
+            Migrations\CreatePreferencesTable::class,
+            Migrations\CreateAmendmentsTable::class,
+            Migrations\AddApplicationStaffEntryColumns::class,
+        ],
     ];
 
     public function run(): void {

@@ -27,6 +27,25 @@ class ApplicationService {
 
     private const REF_ATTEMPTS = 5;
 
+    public const SOURCE_PUBLIC = 'public_form';
+
+    /** @return array<string,string> staff entry source => label */
+    public static function staff_sources(): array {
+        return [
+            'staff_paper' => __( 'Paper form', 'rotary-grants' ),
+            'staff_email' => __( 'Email', 'rotary-grants' ),
+            'staff_phone' => __( 'Phone', 'rotary-grants' ),
+            'staff_other' => __( 'Other (explain in the note)', 'rotary-grants' ),
+        ];
+    }
+
+    public static function source_label( string $source ): string {
+        return $source === self::SOURCE_PUBLIC
+            ? __( 'Online form', 'rotary-grants' )
+            /* translators: %s: how received, e.g. Paper form */
+            : sprintf( __( 'Entered by staff — %s', 'rotary-grants' ), self::staff_sources()[ $source ] ?? $source );
+    }
+
     /**
      * @param array<string,mixed> $clean Output of ApplicationForm::validate() with no errors.
      * @return array{application_id:int, reference:string, replayed:bool}|\WP_Error
@@ -39,6 +58,98 @@ class ApplicationService {
             return new \WP_Error( 'round_not_accepting', __( 'Sorry — this funding round is not accepting applications at the moment.', 'rotary-grants' ) );
         }
 
+        return $this->persist( $round, $clean, $submission_key, [
+            'source'       => self::SOURCE_PUBLIC,
+            'submitted_at' => SiteTime::now_utc(),
+        ] );
+    }
+
+    /**
+     * Staff key in an application received on paper, by email or by phone
+     * (grants_manage_organisations). The source is recorded and shown
+     * everywhere; "date received" may be in the past but not the future; an
+     * application received outside the round's window is flagged late and
+     * needs a reason (docs/03). The applicant is emailed an acknowledgement
+     * only if staff ask; staff recipients are not notified (staff entered it).
+     *
+     * @param array<string,string> $raw  Form values (ApplicationForm field names).
+     * @param array{source:string, received:string, reason:string, send_ack:bool} $meta
+     *        received = local "YYYY-MM-DD" in the site timezone.
+     * @return array{application_id:int, reference:string, replayed:bool, late:bool}|\WP_Error
+     *         WP_Error codes are field names (incl. staff_source, staff_received, staff_reason).
+     */
+    public function create_staff_entry( object $round, array $raw, array $meta, string $submission_key ): array|\WP_Error {
+        if ( ! current_user_can( OrganisationService::CAPABILITY ) ) {
+            return OrganisationService::forbidden();
+        }
+        [ $clean, $errors ] = ApplicationForm::validate( $raw, $round, ApplicationForm::MODE_STAFF );
+
+        $source = (string) ( $meta['source'] ?? '' );
+        if ( ! isset( self::staff_sources()[ $source ] ) ) {
+            $errors->add( 'staff_source', __( 'Choose how the application was received.', 'rotary-grants' ) );
+        }
+
+        $received = trim( (string) ( $meta['received'] ?? '' ) );
+        $received_utc = null;
+        if ( ! preg_match( '/^\d{4}-\d{2}-\d{2}$/', $received ) ) {
+            $errors->add( 'staff_received', __( 'Enter the date the application was received.', 'rotary-grants' ) );
+        } else {
+            // Midday local time on the received date: unambiguous, and the
+            // whole day is compared against the round window below.
+            $utc = SiteTime::local_input_to_utc( $received . 'T12:00' );
+            if ( is_wp_error( $utc ) ) {
+                $errors->add( 'staff_received', __( 'Enter a valid date.', 'rotary-grants' ) );
+            } elseif ( $received > wp_date( 'Y-m-d' ) ) {
+                $errors->add( 'staff_received', __( 'The date received cannot be in the future.', 'rotary-grants' ) );
+            } else {
+                $received_utc = $utc;
+            }
+        }
+
+        // Late = received on a day wholly outside the round's window. A paper
+        // form dated the closing day itself gets the benefit of the doubt
+        // (no time of day is known), as does one dated the opening day.
+        $late = false;
+        if ( $received_utc !== null ) {
+            $day_start = SiteTime::local_input_to_utc( $received . 'T00:00' );
+            $day_start = is_wp_error( $day_start ) ? $received_utc : $day_start;
+            $opens_on  = $round->opens_at ? wp_date( 'Y-m-d', strtotime( $round->opens_at . ' UTC' ) ) : null;
+            $late      = ( $round->closes_at && $day_start >= $round->closes_at ) || ( $opens_on && $received < $opens_on );
+        }
+
+        $reason = trim( sanitize_textarea_field( (string) ( $meta['reason'] ?? '' ) ) );
+        if ( $late && $reason === '' ) {
+            $errors->add( 'staff_reason', __( 'This application was received outside the round\'s opening and closing dates. Give the reason it is being accepted.', 'rotary-grants' ) );
+        }
+        if ( mb_strlen( $reason ) > 2000 ) {
+            $errors->add( 'staff_reason', __( 'Please shorten the reason to 2000 characters or fewer.', 'rotary-grants' ) );
+        }
+        if ( $round->status === RoundStatus::ARCHIVED || $round->status === RoundStatus::DRAFT ) {
+            $errors->add( 'staff_round', __( 'Applications can only be entered for open or closed rounds.', 'rotary-grants' ) );
+        }
+
+        if ( $errors->has_errors() ) {
+            return $errors;
+        }
+
+        $result = $this->persist( $round, $clean, $submission_key, [
+            'source'             => $source,
+            'submitted_at'       => $received_utc,
+            'entered_by_user_id' => get_current_user_id(),
+            'entry_reason'       => $reason,
+            'is_late'            => $late,
+            'notify'             => ! empty( $meta['send_ack'] ) ? [ NotificationService::KIND_ACK ] : [],
+        ] );
+        return is_wp_error( $result ) ? $result : $result + [ 'late' => $late ];
+    }
+
+    /**
+     * Shared idempotent insert for public and staff applications.
+     *
+     * @param array{source:string, submitted_at:string, entered_by_user_id?:int, entry_reason?:string, is_late?:bool, notify?:string[]} $entry
+     * @return array{application_id:int, reference:string, replayed:bool}|\WP_Error
+     */
+    private function persist( object $round, array $clean, string $submission_key, array $entry ): array|\WP_Error {
         global $wpdb;
         $key_hash     = hash( 'sha256', $submission_key );
         $payload_hash = ApplicationForm::payload_hash( $clean, (int) $round->id );
@@ -69,7 +180,17 @@ class ApplicationService {
         }
         $submission_id = (int) $wpdb->insert_id;
 
-        $snapshot = wp_json_encode( ApplicationForm::snapshot( $clean, $round, $now ) );
+        $snap = ApplicationForm::snapshot( $clean, $round, $entry['submitted_at'] );
+        $snap['source'] = $entry['source'];
+        if ( $entry['source'] !== self::SOURCE_PUBLIC ) {
+            $snap['staff_entry'] = [
+                'entered_by_user_id' => (int) ( $entry['entered_by_user_id'] ?? 0 ),
+                'entered_at'         => $now,
+                'reason'             => (string) ( $entry['entry_reason'] ?? '' ),
+                'late'               => ! empty( $entry['is_late'] ),
+            ];
+        }
+        $snapshot = wp_json_encode( $snap );
         $app_id   = 0;
         $ref      = '';
         for ( $i = 0; $i < self::REF_ATTEMPTS && ! $app_id; $i++ ) {
@@ -86,13 +207,16 @@ class ApplicationService {
                     'answer_snapshot_json' => $snapshot,
                     'form_version'         => ApplicationForm::FORM_VERSION,
                     'policy_version'       => (string) $round->policy_version,
-                    'source'               => 'public_form',
-                    'submitted_at'         => $now,
+                    'source'               => $entry['source'],
+                    'entered_by_user_id'   => $entry['entered_by_user_id'] ?? null,
+                    'entry_reason'         => $entry['entry_reason'] ?? null,
+                    'is_late'              => ! empty( $entry['is_late'] ) ? 1 : 0,
+                    'submitted_at'         => $entry['submitted_at'],
                     'row_version'          => 1,
                     'created_at'           => $now,
                     'updated_at'           => $now,
                 ],
-                [ '%d', '%s', '%s', '%s', '%s', '%d', '%s', '%s', '%s', '%s', '%s', '%d', '%s', '%s' ]
+                [ '%d', '%s', '%s', '%s', '%s', '%d', '%s', '%s', '%s', '%s', '%d', '%s', '%d', '%s', '%d', '%s', '%s' ]
             );
             if ( $ok !== false ) {
                 $app_id = (int) $wpdb->insert_id;
@@ -111,16 +235,17 @@ class ApplicationService {
             return new \WP_Error( 'db_error', __( 'Sorry — your application could not be saved. Nothing has been submitted; please try again.', 'rotary-grants' ) );
         }
 
-        AuditLogger::record( 'application_submitted', 'application', $app_id, [
+        AuditLogger::record( $entry['source'] === self::SOURCE_PUBLIC ? 'application_submitted' : 'application_entered_by_staff', 'application', $app_id, array_filter( [
             'reference' => $ref,
             'round_id'  => (int) $round->id,
-            'source'    => 'public_form',
-        ] );
+            'source'    => $entry['source'],
+            'late'      => ! empty( $entry['is_late'] ) ? true : null,
+        ], static fn( $v ) => $v !== null ) );
 
         // Only now, after COMMIT, queue the emails. A queueing problem must
         // never undo or duplicate the saved application.
         try {
-            ( new NotificationService() )->queue_for_application( $app_id );
+            ( new NotificationService() )->queue_for_application( $app_id, $entry['notify'] ?? null );
         } catch ( \Throwable $e ) {
             error_log( 'Rotary Grants: could not queue notifications for application ' . $app_id . ': ' . get_class( $e ) ); // phpcs:ignore WordPress.PHP.DevelopmentFunctions
         }
@@ -137,10 +262,14 @@ class ApplicationService {
     /**
      * @return object[] Newest first. Snapshot JSON is not decoded here.
      */
-    public function list( ?int $round_id = null, ?string $status = null ): array {
+    public function list( ?int $round_id = null, ?string $status = null, ?int $organisation_id = null ): array {
         global $wpdb;
         $where  = [];
         $params = [];
+        if ( $organisation_id ) {
+            $where[]  = 'a.organisation_id = %d';
+            $params[] = $organisation_id;
+        }
         if ( $round_id ) {
             $where[]  = 'a.round_id = %d';
             $params[] = $round_id;
@@ -149,14 +278,32 @@ class ApplicationService {
             $where[]  = 'a.status = %s';
             $params[] = $status;
         }
-        $sql = "SELECT a.id, a.round_id, a.public_reference, a.status, a.organisation_name, a.organisation_town,
-                       a.requested_pence, a.source, a.submitted_at, r.label AS round_label, r.fund_name
+        $sql = "SELECT a.id, a.round_id, a.organisation_id, a.public_reference, a.status, a.organisation_name, a.organisation_town,
+                       a.requested_pence, a.source, a.is_late, a.submitted_at, r.label AS round_label, r.fund_name
                 FROM {$wpdb->prefix}grants_applications a
                 LEFT JOIN {$wpdb->prefix}grants_rounds r ON r.id = a.round_id"
             . ( $where ? ' WHERE ' . implode( ' AND ', $where ) : '' )
             . ' ORDER BY a.submitted_at DESC, a.id DESC';
         $rows = $params ? $wpdb->get_results( $wpdb->prepare( $sql, ...$params ) ) : $wpdb->get_results( $sql ); // phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared — placeholders built above
         return array_map( [ self::class, 'hydrate' ], (array) $rows );
+    }
+
+    /**
+     * Other applications in the same round that look like the same
+     * organisation: same linked organisation, or (while unlinked) the same
+     * normalised name. Repeat applications are allowed but flagged (docs/02).
+     *
+     * @return object[]
+     */
+    public function same_round_siblings( object $application ): array {
+        $key = \Rotary\Grants\Support\NameMatcher::name_key( $application->organisation_name );
+        return array_values( array_filter(
+            $this->list( $application->round_id ),
+            static fn( $a ) => $a->id !== $application->id && (
+                ( $application->organisation_id && $a->organisation_id === $application->organisation_id )
+                || ( $key !== '' && \Rotary\Grants\Support\NameMatcher::name_key( $a->organisation_name ) === $key )
+            )
+        ) );
     }
 
     // =========================================================================
@@ -207,6 +354,13 @@ class ApplicationService {
     private static function hydrate( object $row ): object {
         $row->id              = (int) $row->id;
         $row->round_id        = (int) $row->round_id;
+        $row->organisation_id = empty( $row->organisation_id ) ? null : (int) $row->organisation_id;
+        if ( property_exists( $row, 'contact_id' ) ) {
+            $row->contact_id = empty( $row->contact_id ) ? null : (int) $row->contact_id;
+        }
+        if ( isset( $row->is_late ) ) {
+            $row->is_late = (bool) (int) $row->is_late;
+        }
         $row->requested_pence = $row->requested_pence === null ? null : (int) $row->requested_pence;
         if ( isset( $row->row_version ) ) {
             $row->row_version = (int) $row->row_version;

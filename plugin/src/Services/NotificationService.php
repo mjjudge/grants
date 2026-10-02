@@ -76,8 +76,10 @@ class NotificationService {
     /**
      * Queue the acknowledgement and staff notices for a committed application.
      * Idempotent (UNIQUE command_key). Returns the number of rows newly queued.
+     *
+     * @param string[]|null $kinds Limit to these kinds (null = both).
      */
-    public function queue_for_application( int $application_id ): int {
+    public function queue_for_application( int $application_id, ?array $kinds = null ): int {
         $app = ( new ApplicationService() )->find( $application_id );
         if ( ! $app ) {
             return 0;
@@ -85,11 +87,12 @@ class NotificationService {
         $snapshot = json_decode( (string) $app->answer_snapshot_json, true ) ?: [];
         $email    = (string) ( $snapshot['answers']['contact_email'] ?? '' );
 
-        $rows = [];
-        if ( is_email( $email ) ) {
+        $kinds = $kinds ?? [ self::KIND_ACK, self::KIND_STAFF ];
+        $rows  = [];
+        if ( in_array( self::KIND_ACK, $kinds, true ) && is_email( $email ) ) {
             $rows[] = [ self::KIND_ACK, $email, self::KIND_ACK . ':' . $application_id ];
         }
-        foreach ( ( new SettingsService() )->notification_recipients() as $staff ) {
+        foreach ( in_array( self::KIND_STAFF, $kinds, true ) ? ( new SettingsService() )->notification_recipients() : [] as $staff ) {
             $rows[] = [ self::KIND_STAFF, $staff, self::KIND_STAFF . ':' . $application_id . ':' . md5( strtolower( $staff ) ) ];
         }
 

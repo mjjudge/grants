@@ -10,18 +10,26 @@
  *   $round_id     int       Selected round filter (0 = all).
  *   $status       string    Selected status filter ('' = all).
  *   $base_url     string    List URL without filters.
+ *   $add_url      string    Staff "Add application" URL, or '' if not permitted.
+ *   $organisation_id int    Organisation filter (0 = all).
  */
 defined( 'ABSPATH' ) || exit;
 
+use Rotary\Grants\Services\ApplicationService;
 use Rotary\Grants\Services\ApplicationStatus;
 use Rotary\Grants\Support\Money;
 use Rotary\Grants\Support\SiteTime;
 ?>
 <div class="wrap grants-admin">
-    <h1><?php esc_html_e( 'Applications', 'rotary-grants' ); ?></h1>
+    <h1 class="wp-heading-inline"><?php esc_html_e( 'Applications', 'rotary-grants' ); ?></h1>
+    <?php if ( $add_url !== '' ) : ?>
+        <a href="<?php echo esc_url( $add_url ); ?>" class="page-title-action"><?php esc_html_e( 'Enter a paper/email application', 'rotary-grants' ); ?></a>
+    <?php endif; ?>
+    <hr class="wp-header-end">
 
     <form method="get" class="grants-filters">
         <input type="hidden" name="page" value="grants-applications">
+        <?php if ( $organisation_id ) : ?><input type="hidden" name="organisation_id" value="<?php echo esc_attr( (string) $organisation_id ); ?>"><?php endif; ?>
         <label for="grants-filter-round" class="screen-reader-text"><?php esc_html_e( 'Funding round', 'rotary-grants' ); ?></label>
         <select id="grants-filter-round" name="round_id">
             <option value="0"><?php esc_html_e( 'All rounds', 'rotary-grants' ); ?></option>
@@ -57,8 +65,12 @@ use Rotary\Grants\Support\SiteTime;
             <?php endif; ?>
             <?php foreach ( $applications as $a ) : ?>
                 <tr>
-                    <td><a href="<?php echo esc_url( add_query_arg( [ 'action' => 'view', 'id' => $a->id ], $base_url ) ); ?>"><strong><?php echo esc_html( $a->public_reference ); ?></strong></a></td>
-                    <td><?php echo esc_html( $a->organisation_name ); ?></td>
+                    <td>
+                        <a href="<?php echo esc_url( add_query_arg( [ 'action' => 'view', 'id' => $a->id ], $base_url ) ); ?>"><strong><?php echo esc_html( $a->public_reference ); ?></strong></a>
+                        <?php if ( $a->source !== ApplicationService::SOURCE_PUBLIC ) : ?><br><span class="grants-badge"><?php echo esc_html( ApplicationService::source_label( $a->source ) ); ?></span><?php endif; ?>
+                        <?php if ( $a->is_late ) : ?> <span class="grants-badge grants-badge--late"><?php esc_html_e( 'Late', 'rotary-grants' ); ?></span><?php endif; ?>
+                    </td>
+                    <td><?php echo esc_html( $a->organisation_name ); ?><?php if ( ! $a->organisation_id ) : ?> <span class="grants-badge"><?php esc_html_e( 'not linked', 'rotary-grants' ); ?></span><?php endif; ?></td>
                     <td><?php echo esc_html( $a->organisation_town ); ?></td>
                     <td class="num"><?php echo esc_html( $a->requested_pence === null ? '—' : Money::format_gbp( $a->requested_pence ) ); ?></td>
                     <td><?php echo esc_html( trim( $a->fund_name . ' — ' . $a->round_label, ' —' ) ); ?></td>

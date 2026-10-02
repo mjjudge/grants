@@ -2,7 +2,7 @@
 
 **Owner:** Rotary in the Vale  
 **Repository:** not yet published  
-**Version:** 0.5.0 (G04 notifications — see "Current status" below)  
+**Version:** 0.6.0 (G05 organisations — see "Current status" below)  
 **Requires:** WordPress 6.0+, PHP 8.2+ (provisional — see `docs/ARCHITECTURE.md`)  
 **Hosted on:** SiteGround shared hosting (same account as the sibling plugins below)
 
@@ -31,7 +31,7 @@ It shares no code, database table, or credential with any of them — see
 
 ## Current status
 
-**G01–G04 done — 0.5.0.** The plugin activates, creates its tables, grants
+**G01–G05 done — 0.6.0.** The plugin activates, creates its tables, grants
 the `grants_*` capabilities to Administrator only (never Editor), and provides:
 
 - **Public application form** — put
@@ -44,13 +44,18 @@ the `grants_*` capabilities to Administrator only (never Editor), and provides:
   every Settings recipient gets a short "new application" notice, sent from
   `funds@rotaryinthevale.org` (configurable) with retries; failures show on
   **Notifications**. Sending can be paused in Settings
-- **Applications** (admin) — read-only list and full submitted snapshot
+- **Applications** (admin) — list and full submitted snapshot; staff link
+  each one to an **organisation** from suggested matches (never automatic),
+  and can **enter paper/email/phone applications** (labelled, late ones
+  flagged with a reason)
+- **Organisations** — corrections with history, contacts over time,
+  future-round email permissions with withdrawal, merging duplicates
 - **Funding Rounds** — create, edit, open, close, reopen and archive rounds
 - **Settings** — help email, staff notification recipients, privacy notice
 - **Access** (administrators) — who holds which capability
 
-No organisation matching, review, decision or payment yet. See
-`backlog/DECISIONS.md` DEC-007 to DEC-011.
+No review, decision or payment yet. See `backlog/DECISIONS.md` DEC-007 to
+DEC-012.
 
 ---
 
@@ -76,7 +81,7 @@ plugin/                    WordPress plugin (the application)
     Database/               Migrator + one class per schema change
     Mail/                   Mailer (scoped sender identity, plain text)
     Public/                 Public form handler (shortcode, tokens, submission)
-    Support/                Money (exact GBP) and SiteTime (timezone) helpers
+    Support/                Money (exact GBP), SiteTime (timezone), NameMatcher
     Audit/                  AuditLogger → grants_audit_events
   assets/
     css/
@@ -130,8 +135,8 @@ cycle is required on the live site to run it** — see `CLAUDE.md` and
    across the sibling plugins' release history.
 2. Read `docs/00-proposal.md` through `docs/08-source-notes.md` for the product
    brief, and `docs/grants-discovery.md` for the evidence it's grounded in.
-3. Read `backlog/BACKLOG.md` for the ordered task list (G00–G04 are done;
-   G05 is next) and `backlog/DECISIONS.md` for what's already been decided.
+3. Read `backlog/BACKLOG.md` for the ordered task list (G00–G05 are done;
+   G06 is next) and `backlog/DECISIONS.md` for what's already been decided.
 4. Confirm the still-open rows in `docs/07-decisions-and-launch.md` with the
    project owner before opening a live funding round — none of them are
    guessed, and none should be.
@@ -147,3 +152,4 @@ cycle is required on the live site to run it** — see `CLAUDE.md` and
 | 0.3.0 | G02 funding rounds: `grants_rounds` table, round list/add/edit screens, draft→open→closed→archived status changes with readiness checks, one open round per fund (lock-serialised), server-time accepting window (opening inclusive, closing exclusive), exact GBP parsing, timezone handling that rejects non-existent/ambiguous clock-change times, per-round wording with automatic wording version, optimistic concurrency; privacy notice link/version added to Settings. **Contains a migration — deactivate/reactivate required when upgrading.** |
 | 0.4.0 | G03 application form: `[rotary_grant_application fund="…"]` shortcode (one page per fund, concurrent funds supported), every docs/01 field with server-side validation and accessible errors that keep answers, per-round publicity/presentation wording (`presentation_text` column), nonce + session-bound HMAC token + origin check + honeypot + rate limit, idempotent InnoDB submission (`grants_applications`, `grants_submissions`), server-time closure, session-bound receipt, read-only admin Applications list/view. **Contains migrations — deactivate/reactivate required when upgrading.** |
 | 0.5.0 | G04 notifications: `grants_notifications` queue (unique command key per message, queued after commit), applicant acknowledgement and per-recipient staff notice (plain text, From `funds@rotaryinthevale.org` / Rotary in the Vale, Reply-To help email — editable in Settings), send-after-response plus 5-minute WP-Cron retries with backoff, failed-email screen with retry, pause switch, receipt mentions the acknowledgement. **Contains a migration — deactivate/reactivate required when upgrading.** Before launch: SPF/DKIM for the sender and a real cron job (see release checklist). |
+| 0.6.0 | G05 organisations: `grants_organisations`, `grants_contacts`, `grants_preferences`, `grants_amendments` tables and staff-entry columns; staff-confirmed linking of applications from suggested matches (name/charity number/postcode — never email), contacts over time, correction history, future-round permission history with withdrawal, merging duplicates, repeat-application flag, staff-entered paper/email/phone applications with source label and late flag. **Contains migrations — deactivate/reactivate required when upgrading.** |
