@@ -9,9 +9,9 @@ have been added; everything else is the original brief's requirement.
 ## Plugin boundary
 
 Slug `rotary-grants`, PHP namespace `Rotary\Grants\`, shortcode
-`[tol_grant_application]` — rename pending confirmation; given the plugin is
-fund-agnostic, `[rotary_grant_application]` may read better once a second fund
-actually uses it. No collision with any shortcode already registered by Tree of
+`[rotary_grant_application fund="…"]` (confirmed by the project owner at G03;
+`round="N"` pins a specific round instead — see `backlog/DECISIONS.md`
+DEC-010). No collision with any shortcode already registered by Tree of
 Light, Duck Race, or Battle Shield Sponsorship (checked — see
 `docs/grants-discovery.md`). Build conventional PHP WordPress screens and a
 progressively enhanced public form; no separate service or SPA is needed.

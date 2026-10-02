@@ -142,19 +142,61 @@ Set Settings → General → Timezone to **London** first.
 
 ## Section 3 — Application form (G03) **[SMOKE]**
 
-- [ ] Every original eligibility rule and exclusion from the source form is
-      visible for the active round's fund
+Setup: Settings complete; two rounds open for two different funds, one with
+publicity and presentation wording and a maximum award, one without. Pages:
+`[rotary_grant_application fund="<fund A>"]` and
+`[rotary_grant_application fund="<fund B>"]`. Use a private browser window.
+
+### 3a. What the applicant sees
+
+- [ ] Each page shows "Apply for <its fund> funding", its own round label,
+      closing date, help email, intro, eligibility and exclusions — never the
+      other fund's text
+- [ ] Publicity/presentation sections (and their tick boxes) appear only on
+      the round that has that wording; the maximum award is mentioned only
+      where one is set
 - [ ] A community group with no charity number can submit
-- [ ] Required/invalid fields show accessible errors beside the field and in a
-      focusable summary; entered answers survive a validation failure
-      (file inputs, if any, excepted — browsers never repopulate those)
-- [ ] Two concurrent submissions with the same idempotency key produce one
-      application and the same reference; a different payload with the same
-      key is rejected
-- [ ] A previously loaded form cannot submit after the round's closing time
-      (server time, not client clock)
-- [ ] Script payloads, unsafe URLs, malformed/negative money, more than two
-      decimal places, and forged staff-only fields are all rejected
+- [ ] The page's response headers include `Cache-Control: no-cache…` and set a
+      `grants_form_session` cookie (browser dev tools → Network)
+- [ ] A page with plain `[rotary_grant_application]` while two rounds are open
+      shows "not currently open" to the public and a "Note for site editors"
+      when logged in
+
+### 3b. Validation and accessibility
+
+- [ ] Submit an empty form → error summary at the top receives focus; each
+      message links to its field; every field error appears beside the field
+- [ ] Enter `Zoë O'Brien`, `St Mary's Église & Friends`, `5 < 10 chairs` —
+      these are accepted and display exactly as typed after an error elsewhere
+- [ ] `<script>alert(1)</script>` in a text box → "remove the HTML" error;
+      `javascript:alert(1)` as website → rejected
+- [ ] Amount: `1.005`, `-5`, `0` rejected; `0.01` and `1,250.50` accepted;
+      above the round's maximum award rejected
+- [ ] "Locally led? No", "Local branch? Yes", "One-off? Not sure" each require
+      their explanation
+- [ ] After any error, every answer (including ticked boxes and radio choices)
+      is still filled in
+- [ ] Whole form can be completed with keyboard only; labels read correctly
+      with a screen reader (VoiceOver/NVDA spot check); usable on a phone
+
+### 3c. Submission
+
+- [ ] A valid submission shows "Application received" with a reference like
+      `RG-7KQ2-M9XD`, the organisation, round, amount and time — and appears
+      under Rotary Grants → Applications with the full answers and versions
+- [ ] Refresh the receipt page → same receipt; open the receipt URL in a
+      different browser → generic "Thank you" only, no details
+- [ ] Double-click Submit (or resubmit via Back + Submit with the same
+      answers) → still exactly one application, same reference
+- [ ] Back, change the amount, Submit again on the same form → refused
+      ("already been used to submit application RG-…"); reload the page to
+      send a genuinely new application → a second application is created
+- [ ] Load the form, then close the round (or move its closing time into the
+      past) in admin, then submit → refused as not accepting; nothing saved
+- [ ] Leave the form open for over a day, then submit → "needed refreshing"
+      with answers kept; submitting again works
+- [ ] `<prefix>grants_audit_events` has `application_submitted` with the
+      reference and round only — no names or email addresses
 
 ## Section 4 — Receipt and notifications (G04) **[SMOKE]**
 

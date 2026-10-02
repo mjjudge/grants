@@ -56,3 +56,12 @@
 .grants-admin .grants-round-list .num {
     text-align: right;
 }
+
+.grants-admin .grants-kv th {
+    width: 22em;
+    vertical-align: top;
+}
+
+.grants-admin .grants-filters {
+    margin: 12px 0;
+}

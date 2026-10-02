@@ -25,7 +25,7 @@ class RoundService {
     public const CAPABILITY = 'grants_manage_rounds';
 
     /** Public wording fields, configured per round. */
-    public const TEXT_FIELDS = [ 'intro_text', 'eligibility_text', 'exclusions_text', 'publicity_text' ];
+    public const TEXT_FIELDS = [ 'intro_text', 'eligibility_text', 'exclusions_text', 'publicity_text', 'presentation_text' ];
 
     private const MAX_TEXT_LENGTH  = 10000;
     private const MIN_YEAR         = 2000;
@@ -36,6 +36,7 @@ class RoundService {
     private const EDITABLE_COLUMNS = [
         'label', 'fund_name', 'campaign_year', 'accounting_period_label', 'opens_at', 'closes_at',
         'budget_pence', 'cap_pence', 'intro_text', 'eligibility_text', 'exclusions_text', 'publicity_text',
+        'presentation_text',
     ];
 
     // =========================================================================
@@ -62,6 +63,20 @@ class RoundService {
             $rows = $wpdb->get_results( "SELECT * FROM {$this->table()} ORDER BY campaign_year DESC, id DESC" ); // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared — no user input
         }
         return array_map( [ self::class, 'hydrate' ], (array) $rows );
+    }
+
+    /**
+     * The open round for a fund (at most one exists — DEC-009), or null.
+     * fund_name comparison follows the table collation (case-insensitive).
+     */
+    public function find_open_for_fund( string $fund_name ): ?object {
+        global $wpdb;
+        $row = $wpdb->get_row( $wpdb->prepare(
+            "SELECT * FROM {$this->table()} WHERE fund_name = %s AND status = %s ORDER BY id DESC LIMIT 1",
+            trim( $fund_name ),
+            RoundStatus::OPEN
+        ) );
+        return $row ? self::hydrate( $row ) : null;
     }
 
     /**

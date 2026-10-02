@@ -1,8 +1,7 @@
 # Cache Exclusions — Rotary Grants
 
-**Not yet applicable — no public page exists until G03.** This file is a
-placeholder with the principle to apply, written now so it isn't forgotten
-later, and as a direct lesson from a problem found in Tree of Light's own
+**Filled in at G03 (0.4.0).** Written originally as a placeholder, and as a
+direct lesson from a problem found in Tree of Light's own
 equivalent file: its `deployment-notes/CACHE_EXCLUSIONS.md` lists page slugs
 (`/tol-campaign`, `/tol-success`, `/tol-failed`, `/tol-names`) that no longer
 match its actual current pages (confirmed in `docs/grants-discovery.md`) — it
@@ -10,30 +9,51 @@ was written once and never updated when the real slugs changed. **Do not let
 that happen here: update this file in the same commit that changes a public
 page's slug or query-string behaviour, not as a follow-up.**
 
-## Principle (fill in real slugs once G03 ships)
+## What the plugin does itself
 
-SiteGround's caching (SuperCacher/Dynamic Cache) and any full-page or CDN cache
-in front of `rotaryinthevale.org` must not cache pages that render a nonce,
-session-bound submission token, or any per-visitor state — caching them causes
-stale tokens (submissions fail with a security-check error) or one visitor's
-receipt being served to another.
+Any page whose content contains `[rotary_grant_application …]`:
 
-Exclude by **query-string presence**, not only by fixed slug — this is the
-approach that actually holds up over a slug rename, unlike Tree of Light's
-stale, slug-only version. Once the public application form page exists, its
-exact slug and query-string parameters (success/cancel state, any token) go
-here, following the same rule-of-thumb Tree of Light intended: exclude by the
-presence of whatever parameter names `src/Public/*FormHandler.php` actually
-reads (confirm by reading the code when this is filled in, not by guessing from
-this placeholder).
+- is sent WordPress `nocache_headers()` (`Cache-Control: no-cache,
+  must-revalidate, max-age=0, no-store, private`) and defines
+  `DONOTCACHEPAGE` — confirmed in the response headers on LocalWP;
+- sets a session cookie **`grants_form_session`** (HttpOnly, SameSite=Lax,
+  Secure on HTTPS). The form token is bound to this cookie, so a cached copy
+  of the page carries a token that will not verify for anyone else — the
+  visitor then sees "this form needed refreshing" with their answers kept,
+  rather than a silent failure. That is the safety net, not the plan:
+  configure the exclusions below anyway.
 
-## Checklist for whoever fills this in at G03/G04
+Source of truth: `plugin/src/Public/ApplicationFormHandler.php`
+(`prepare_page()`, `COOKIE`, `SUBMITTED_ARG`).
 
-- [ ] List the exact page slug(s) the public form and any receipt/cancel state
-      actually use (query-string-driven on one page, matching Tree of Light's
-      own donate-page pattern, is the recommended approach — see
-      `docs/ARCHITECTURE.md`)
-- [ ] List every query-string parameter name that must trigger a cache bypass
-- [ ] Confirm the rule is actually configured in SiteGround Site Tools →
-      Speed → Caching (or the caching plugin in use), not just documented here
-- [ ] Re-check this file any time a slug or query parameter changes
+## Exclusions to configure on SiteGround
+
+The application pages are ordinary WordPress pages chosen by whoever builds
+the site — **one page per fund**, e.g.:
+
+| Page (example slug — record the real ones here) | Shortcode |
+|---|---|
+| `/apply-tree-of-light/` | `[rotary_grant_application fund="Tree of Light"]` |
+| `/apply-club-charity-fund/` | `[rotary_grant_application fund="Club Charity Fund"]` |
+
+Configure in **SiteGround Site Tools → Speed → Caching → Dynamic Cache →
+Exclude URLs** (and in any caching plugin/CDN in front of the site):
+
+- [ ] each application page's path (the real slugs, once created), and
+- [ ] any URL with the query parameter **`grants_submitted`** (the receipt
+      view — personal to the visitor, session-bound), and
+- [ ] any request carrying the cookie **`grants_form_session`** if the cache
+      supports cookie-based bypass.
+
+POST requests are never cached by SiteGround's dynamic cache, so the form
+submission itself needs no rule.
+
+## Checklist
+
+- [ ] Real page slugs entered in the table above
+- [ ] Rules configured in SiteGround (not just documented here) — check by
+      loading an application page twice in a private window and confirming
+      the `grants_form_session` cookie value and the hidden
+      `grants_form_token` differ between two *different* private windows
+- [ ] Re-check this file whenever a slug, cookie name or query parameter
+      changes — in the same commit as the change

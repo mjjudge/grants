@@ -2,7 +2,7 @@
 
 **Owner:** Rotary in the Vale  
 **Repository:** not yet published  
-**Version:** 0.3.0 (G02 funding rounds — see "Current status" below)  
+**Version:** 0.4.0 (G03 application form — see "Current status" below)  
 **Requires:** WordPress 6.0+, PHP 8.2+ (provisional — see `docs/ARCHITECTURE.md`)  
 **Hosted on:** SiteGround shared hosting (same account as the sibling plugins below)
 
@@ -31,22 +31,23 @@ It shares no code, database table, or credential with any of them — see
 
 ## Current status
 
-**G01–G02 done — 0.3.0.** The plugin activates, creates its tables
-(`grants_settings`, `grants_audit_events`, `grants_rounds`), grants the
-`grants_*` capabilities to Administrator only (never Editor), and provides a
-Rotary Grants admin menu with:
+**G01–G03 done — 0.4.0.** The plugin activates, creates its tables, grants
+the `grants_*` capabilities to Administrator only (never Editor), and provides:
 
-- **Funding Rounds** — create, edit, open, close, reopen and archive rounds,
-  each with its own fund name, dates (site time, stored UTC), budget, optional
-  maximum award, and public wording; opening is blocked until the round and
-  Settings are complete, and only one round per fund can be open at a time
-- **Settings** — help/contact email, staff notification recipients, privacy
-  notice link and version
-- **Access** (administrators) — who holds which capability; individual
-  capabilities are granted on each user's profile
+- **Public application form** — put
+  `[rotary_grant_application fund="Tree of Light"]` on a page (one page per
+  fund; `round="N"` pins a specific round). The form shows that round's own
+  wording, enforces the closing time by server clock, keeps answers on
+  error, and saves each application exactly once even on double-clicks or
+  retries. See `deployment-notes/CACHE_EXCLUSIONS.md` before going live.
+- **Applications** (admin) — read-only list and full submitted snapshot
+- **Funding Rounds** — create, edit, open, close, reopen and archive rounds
+- **Settings** — help email, staff notification recipients, privacy notice
+- **Access** (administrators) — who holds which capability
 
-See `backlog/DECISIONS.md` DEC-007 to DEC-009. No public application form,
-review, decisions or payments yet: G03 is next in `backlog/BACKLOG.md`.
+No emails are sent yet (acknowledgement and staff notification are G04), and
+there is no organisation matching, review, decision or payment yet. See
+`backlog/DECISIONS.md` DEC-007 to DEC-010.
 
 ---
 
@@ -70,6 +71,8 @@ plugin/                    WordPress plugin (the application)
     Admin/                  Thin admin controllers (menu, pages, profile section)
     Services/               Business rules — the only code that writes data
     Database/               Migrator + one class per schema change
+    Public/                 Public form handler (shortcode, tokens, submission)
+    Support/                Money (exact GBP) and SiteTime (timezone) helpers
     Audit/                  AuditLogger → grants_audit_events
   assets/
     css/
@@ -123,8 +126,8 @@ cycle is required on the live site to run it** — see `CLAUDE.md` and
    across the sibling plugins' release history.
 2. Read `docs/00-proposal.md` through `docs/08-source-notes.md` for the product
    brief, and `docs/grants-discovery.md` for the evidence it's grounded in.
-3. Read `backlog/BACKLOG.md` for the ordered task list (G00–G02 are done;
-   G03 is next) and `backlog/DECISIONS.md` for what's already been decided.
+3. Read `backlog/BACKLOG.md` for the ordered task list (G00–G03 are done;
+   G04 is next) and `backlog/DECISIONS.md` for what's already been decided.
 4. Confirm the still-open rows in `docs/07-decisions-and-launch.md` with the
    project owner before opening a live funding round — none of them are
    guessed, and none should be.
@@ -138,3 +141,4 @@ cycle is required on the live site to run it** — see `CLAUDE.md` and
 | 0.1.0 | Repository setup: git init, directory skeleton, `scripts/build-zip` (proven working), `docs/` (product brief adapted from the original build pack, naming corrected to be fund-agnostic, Settings/staff-notification requirement added), `backlog/BACKLOG.md` and `backlog/DECISIONS.md`, `CLAUDE.md`, `test-notes/TEST_PLAN.md`, `deployment-notes/`. No functional plugin code yet — see "Current status" above |
 | 0.2.0 | G01 bootstrap: activation/deactivation, `Migrator` with `grants_audit_events` and `grants_settings` tables, `grants_*` capabilities granted to Administrator only, per-user capability grants on the user profile (admin-only, audited), Rotary Grants menu with placeholder dashboard, Settings screen (help email, staff notification recipients), Access screen. **Contains migrations — deactivate/reactivate required when upgrading.** |
 | 0.3.0 | G02 funding rounds: `grants_rounds` table, round list/add/edit screens, draft→open→closed→archived status changes with readiness checks, one open round per fund (lock-serialised), server-time accepting window (opening inclusive, closing exclusive), exact GBP parsing, timezone handling that rejects non-existent/ambiguous clock-change times, per-round wording with automatic wording version, optimistic concurrency; privacy notice link/version added to Settings. **Contains a migration — deactivate/reactivate required when upgrading.** |
+| 0.4.0 | G03 application form: `[rotary_grant_application fund="…"]` shortcode (one page per fund, concurrent funds supported), every docs/01 field with server-side validation and accessible errors that keep answers, per-round publicity/presentation wording (`presentation_text` column), nonce + session-bound HMAC token + origin check + honeypot + rate limit, idempotent InnoDB submission (`grants_applications`, `grants_submissions`), server-time closure, session-bound receipt, read-only admin Applications list/view. **Contains migrations — deactivate/reactivate required when upgrading.** |

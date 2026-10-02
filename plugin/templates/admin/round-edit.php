@@ -8,7 +8,7 @@
  *                                       campaign_year, accounting_period_label, opens_at,
  *                                       closes_at [local Y-m-d\TH:i], budget, cap [pounds],
  *                                       intro_text, eligibility_text, exclusions_text,
- *                                       publicity_text).
+ *                                       publicity_text, presentation_text).
  *   $errors       array<string,string>  Errors keyed by field name, or 'status' / 'conflict' /
  *                                       'open_round' / 'forbidden' / 'db_error' etc.
  *   $copied_from  object|null           Round whose fund name/wording prefilled an add form.
@@ -43,6 +43,7 @@ $field_labels = [
     'eligibility_text'        => __( 'Eligibility', 'rotary-grants' ),
     'exclusions_text'         => __( 'Exclusions', 'rotary-grants' ),
     'publicity_text'          => __( 'Publicity undertaking', 'rotary-grants' ),
+    'presentation_text'       => __( 'Presentation on collection', 'rotary-grants' ),
 ];
 $descriptions = [
     'label'                   => __( 'How the round is shown to staff and applicants, e.g. "Tree of Light 2026".', 'rotary-grants' ),
@@ -57,7 +58,8 @@ $descriptions = [
     'intro_text'              => __( 'Optional opening paragraph shown on the application page.', 'rotary-grants' ),
     'eligibility_text'        => __( 'Who can apply. Required before the round can open.', 'rotary-grants' ),
     'exclusions_text'         => __( 'What will not be funded. Required before the round can open.', 'rotary-grants' ),
-    'publicity_text'          => __( 'Optional — leave empty if this fund asks no publicity undertaking.', 'rotary-grants' ),
+    'publicity_text'          => __( 'Optional — leave empty if this fund asks no publicity undertaking. If set, applicants must tick to acknowledge it.', 'rotary-grants' ),
+    'presentation_text'       => __( 'Optional — e.g. that a representative may be asked to say a few words when collecting the donation. If set, applicants must tick to acknowledge it.', 'rotary-grants' ),
 ];
 $required = [ 'label', 'fund_name', 'campaign_year' ];
 
@@ -264,7 +266,7 @@ $notice_text = [
         <h2><?php esc_html_e( 'Public wording', 'rotary-grants' ); ?></h2>
         <p class="description"><?php esc_html_e( 'Shown on this round\'s application form. Paragraphs, lists, bold and links are allowed. Changing any of these increases the wording version; each application records the version it was submitted under.', 'rotary-grants' ); ?></p>
         <table class="form-table" role="presentation">
-            <?php foreach ( [ 'intro_text', 'eligibility_text', 'exclusions_text', 'publicity_text' ] as $field ) : ?>
+            <?php foreach ( [ 'intro_text', 'eligibility_text', 'exclusions_text', 'publicity_text', 'presentation_text' ] as $field ) : ?>
                 <tr>
                     <th scope="row"><label for="grants-<?php echo esc_attr( $field ); ?>"><?php echo esc_html( $field_labels[ $field ] ); ?></label></th>
                     <td>

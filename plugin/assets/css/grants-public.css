@@ -1,0 +1,161 @@
+/* Rotary Grants — public application form. Enqueued only where the shortcode renders. */
+
+.grants-apply {
+    max-width: 46rem;
+}
+
+.grants-apply__facts {
+    display: grid;
+    grid-template-columns: max-content 1fr;
+    gap: 0.25rem 1rem;
+    margin: 0 0 1.5rem;
+}
+
+.grants-apply__facts dt {
+    font-weight: 600;
+}
+
+.grants-apply__facts dd {
+    margin: 0;
+}
+
+.grants-apply__rules {
+    border-left: 4px solid #17458f;
+    padding: 0.5rem 1rem;
+    margin: 0 0 2rem;
+    background: #f5f7fb;
+}
+
+.grants-section {
+    border: 0;
+    padding: 0;
+    margin: 0 0 2rem;
+    min-width: 0;
+}
+
+.grants-section > legend h3 {
+    margin: 0 0 0.5rem;
+}
+
+.grants-field {
+    margin: 0 0 1.25rem;
+}
+
+.grants-field > label,
+.grants-field legend {
+    display: block;
+    font-weight: 600;
+    margin-bottom: 0.25rem;
+}
+
+.grants-field fieldset {
+    border: 0;
+    padding: 0;
+    margin: 0;
+}
+
+.grants-field input[type="text"],
+.grants-field input[type="email"],
+.grants-field input[type="tel"],
+.grants-field input[type="url"],
+.grants-field textarea {
+    width: 100%;
+    max-width: 100%;
+    box-sizing: border-box;
+    padding: 0.5rem;
+    font-size: 1rem;
+}
+
+.grants-field .grants-choice,
+.grants-field--checkbox .grants-choice {
+    display: block;
+    font-weight: normal;
+    margin: 0.25rem 0;
+}
+
+.grants-optional {
+    font-weight: normal;
+}
+
+.grants-hint {
+    margin: 0 0 0.25rem;
+    color: #50575e;
+    font-size: 0.95em;
+}
+
+.grants-field--error {
+    border-left: 4px solid #b32d2e;
+    padding-left: 0.75rem;
+}
+
+.grants-error {
+    color: #b32d2e;
+    font-weight: 600;
+    margin: 0 0 0.25rem;
+}
+
+.grants-field--error input,
+.grants-field--error textarea {
+    border: 2px solid #b32d2e;
+}
+
+.grants-error-summary {
+    border: 3px solid #b32d2e;
+    padding: 1rem;
+    margin: 0 0 1.5rem;
+}
+
+.grants-error-summary:focus {
+    outline: 3px solid #ffbf47;
+}
+
+.grants-error-summary h3 {
+    margin-top: 0;
+}
+
+.grants-error-summary a {
+    color: #b32d2e;
+}
+
+.grants-more {
+    margin: 0 0 1.25rem;
+}
+
+.grants-more summary {
+    cursor: pointer;
+    margin-bottom: 0.75rem;
+}
+
+.grants-submit {
+    font-size: 1.1rem;
+    padding: 0.6rem 1.5rem;
+}
+
+.grants-reference {
+    font-size: 1.25em;
+    letter-spacing: 0.05em;
+}
+
+/* Honeypot: off-screen rather than display:none so naive bots still fill it. */
+.grants-hp {
+    position: absolute;
+    left: -10000px;
+    width: 1px;
+    height: 1px;
+    overflow: hidden;
+}
+
+.grants-apply .screen-reader-text {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    overflow: hidden;
+    clip: rect(1px, 1px, 1px, 1px);
+    white-space: nowrap;
+}
+
+.grants-config-problem {
+    background: #fcf9e8;
+    border-left: 4px solid #dba617;
+    padding: 0.5rem 1rem;
+}

@@ -13,6 +13,8 @@ class Plugin {
             dirname( plugin_basename( GRANTS_PLUGIN_FILE ) ) . '/languages'
         );
 
+        ( new \Rotary\Grants\Public\ApplicationFormHandler() )->register();
+
         if ( is_admin() ) {
             ( new \Rotary\Grants\Admin\Menu() )->register();
             ( new \Rotary\Grants\Admin\SettingsPage() )->register();

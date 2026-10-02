@@ -31,6 +31,11 @@ class Migrator {
         '0.3.0' => [
             Migrations\CreateRoundsTable::class,
         ],
+        '0.4.0' => [
+            Migrations\AddRoundPresentationText::class,
+            Migrations\CreateApplicationsTable::class,
+            Migrations\CreateSubmissionsTable::class,
+        ],
     ];
 
     public function run(): void {

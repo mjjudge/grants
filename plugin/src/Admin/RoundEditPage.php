@@ -31,7 +31,7 @@ class RoundEditPage {
     /** Form field names, in the order RoundService::validate() reads them. */
     private const FIELDS = [
         'label', 'fund_name', 'campaign_year', 'accounting_period_label', 'opens_at', 'closes_at', 'budget', 'cap',
-        'intro_text', 'eligibility_text', 'exclusions_text', 'publicity_text',
+        'intro_text', 'eligibility_text', 'exclusions_text', 'publicity_text', 'presentation_text',
     ];
 
     public function register(): void {
