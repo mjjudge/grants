@@ -1,0 +1,44 @@
+# WordPress and PHP
+wp-config.php
+wp-content/uploads/
+wp-content/upgrade/
+wp-content/cache/
+*.log
+
+# Dependencies
+vendor/
+node_modules/
+
+# IDE
+.vscode/settings.json
+.idea/
+*.swp
+*.swo
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Environment / secrets
+.env
+.env.local
+.env.*.local
+!.env.example
+*.key
+*.pem
+
+# Build output
+# NB: dist/ is intentionally NOT ignored — it holds versioned release ZIPs
+# (rotary-grants-<version>.zip) built by scripts/build-zip and committed to
+# the repo, matching the Tree of Light / Duck Race / Battle Shield Sponsorship
+# convention.
+build/
+
+# Composer
+composer.lock
+
+# Local planning and agent guidance (kept locally, not published to GitHub) —
+# same convention as the Tree of Light repository.
+CLAUDE.md
+plan.md
+backlog/

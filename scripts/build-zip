@@ -1,0 +1,55 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+# Builds a WordPress-ready ZIP for the Rotary Grants plugin, following the same
+# dist/<slug>-<version>.zip convention used by the Tree of Light, Duck Race, and
+# Battle of Evesham Shield Sponsorship plugins (see ~/myapps/TOL/scripts/build-zip,
+# ~/myapps/duck-race/scripts/build-zip and
+# ~/myapps/battle-shield-sponsorship/scripts/build-zip).
+#
+# The ZIP's top-level folder is rotary-grants/, matching the install path
+# wp-content/plugins/rotary-grants/.
+#
+# Usage:
+#   scripts/build-zip
+
+REPO_ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
+PLUGIN_DIR="$REPO_ROOT/plugin"
+PLUGIN_SLUG="rotary-grants"
+ENTRY_FILE="$PLUGIN_DIR/rotary-grants.php"
+DIST_DIR="$REPO_ROOT/dist"
+
+# Read version from the plugin header (the "* Version: X.Y.Z" doc-comment line).
+VERSION=$(grep -m1 -E '^\s*\*\s*Version:' "$ENTRY_FILE" | sed 's/.*Version:[[:space:]]*//' | tr -d '[:space:]')
+if [[ -z "$VERSION" ]]; then
+    echo "ERROR: Could not read version from $ENTRY_FILE" >&2
+    exit 1
+fi
+
+ZIP_NAME="${PLUGIN_SLUG}-${VERSION}.zip"
+ZIP_PATH="$DIST_DIR/$ZIP_NAME"
+
+mkdir -p "$DIST_DIR"
+
+# Remove any previous build of this exact version before rebuilding.
+rm -f "$ZIP_PATH"
+
+# Stage into a temp directory so the zip's top-level folder is rotary-grants/,
+# not plugin/.
+STAGING=$(mktemp -d)
+trap 'rm -rf "$STAGING"' EXIT
+
+mkdir "$STAGING/$PLUGIN_SLUG"
+rsync -a \
+    --exclude='.DS_Store' \
+    --exclude='.gitkeep' \
+    --exclude='*.git*' \
+    "$PLUGIN_DIR/" "$STAGING/$PLUGIN_SLUG/"
+
+(cd "$STAGING" && zip -rq "$ZIP_PATH" "$PLUGIN_SLUG")
+
+echo ""
+echo "Built: $ZIP_PATH"
+echo "Size:  $(du -sh "$ZIP_PATH" | cut -f1)"
+echo ""
+echo "Reminder: add a line to the Version history table in README.md for ${VERSION} if you haven't already."
