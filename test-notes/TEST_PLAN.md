@@ -87,14 +87,58 @@ For a quick smoke test after a patch deployment, run only the sections marked
 
 ## Section 2 — Funding round setup (G02)
 
-- [ ] A round can be created with a `fund_name`, label, open/close dates, and
-      budget
-- [ ] Opening a round is blocked until help email and notification recipients
-      are configured
-- [ ] Dates entered in site timezone store correctly in UTC and redisplay
-      correctly
-- [ ] Re-running activation/upgrade on a populated database does not duplicate
-      rows or error
+Set Settings → General → Timezone to **London** first.
+
+### 2a. Creating and editing
+
+- [ ] Rotary Grants → Funding Rounds → Add Round. With an earlier round
+      present, the fund name and wording are pre-filled and a notice says
+      where they were copied from
+- [ ] Submit with empty label/fund, year `26`, budget `1.005`, maximum award
+      larger than the budget → not saved; error summary (focused) plus
+      field errors; everything typed is still in the form
+- [ ] Budget accepts `10000`, `10,000`, `£10,000.50`; rejects `-5`, `1e3`,
+      `1,00`, `10.001` — reload shows the exact amount (no rounding)
+- [ ] Opening `2027-03-28 01:30` is rejected (clocks go forward); closing
+      `2026-10-25 01:30` is rejected (happens twice); `2026-10-25 02:00` is
+      accepted
+- [ ] A round created in summer at 09:00 redisplays as 09:00 (not 08:00 or
+      10:00) after saving; the list shows the same times
+- [ ] Wording with `<script>` is saved without the script; paragraphs, lists
+      and links survive
+- [ ] Changing any wording increases "Wording version"; changing only the
+      budget does not
+- [ ] Open the same round in two tabs, save in one, then save in the other →
+      "Someone else changed this round"; nothing overwritten
+- [ ] Setting the site timezone to "UTC+0" shows the fixed-offset warning on
+      the round screen (set it back to London afterwards)
+
+### 2b. Opening, closing and archiving
+
+- [ ] A new draft lists every missing item under "Before this round can
+      open", including Settings items (help email, recipients, privacy notice);
+      no Open button until all are resolved
+- [ ] With everything set and opening time in the future → Open → status
+      "Open — not yet accepting applications"; once the opening time passes,
+      "accepting applications"
+- [ ] A second round for the **same fund** (any capitalisation) cannot open
+      while the first is open; a round for a **different fund** can
+- [ ] While open: blanking the eligibility wording is refused; moving the
+      closing time into the past is allowed and shows "deadline passed"
+- [ ] Close → Reopen is refused while the closing time is in the past; extend
+      the closing time, then Reopen works
+- [ ] Archive a closed round → it is read-only (no Save, no status buttons)
+- [ ] `<prefix>grants_audit_events` has `round_created`, `round_updated`
+      (changed field names, budget old/new) and `round_status_changed` rows
+
+### 2c. Permissions and persistence
+
+- [ ] A user with only `grants_access` sees the round list without edit links
+      or an Add Round button; the add/edit URLs show "Access denied."
+- [ ] An editor without grants capabilities is denied the round list by
+      direct URL
+- [ ] Deactivate and reactivate the plugin — all rounds still present and
+      unchanged
 
 ## Section 3 — Application form (G03) **[SMOKE]**
 

@@ -2,7 +2,7 @@
 
 **Owner:** Rotary in the Vale  
 **Repository:** not yet published  
-**Version:** 0.2.0 (G01 bootstrap — see "Current status" below)  
+**Version:** 0.3.0 (G02 funding rounds — see "Current status" below)  
 **Requires:** WordPress 6.0+, PHP 8.2+ (provisional — see `docs/ARCHITECTURE.md`)  
 **Hosted on:** SiteGround shared hosting (same account as the sibling plugins below)
 
@@ -31,15 +31,22 @@ It shares no code, database table, or credential with any of them — see
 
 ## Current status
 
-**G01 (bootstrap) done — 0.2.0.** The plugin activates, creates its
-`grants_settings` and `grants_audit_events` tables, grants the `grants_*`
-capabilities to Administrator only (never Editor), and provides a Rotary
-Grants admin menu with a placeholder dashboard, a Settings screen (help/contact
-email and staff notification recipients), and an admin-only Access screen.
-Other accounts are given individual capabilities from their WordPress user
-profile ("Rotary Grants access" section) — see `backlog/DECISIONS.md` DEC-007
-and DEC-008. No funding rounds, application form, or payments yet: G02 is next
-in `backlog/BACKLOG.md`.
+**G01–G02 done — 0.3.0.** The plugin activates, creates its tables
+(`grants_settings`, `grants_audit_events`, `grants_rounds`), grants the
+`grants_*` capabilities to Administrator only (never Editor), and provides a
+Rotary Grants admin menu with:
+
+- **Funding Rounds** — create, edit, open, close, reopen and archive rounds,
+  each with its own fund name, dates (site time, stored UTC), budget, optional
+  maximum award, and public wording; opening is blocked until the round and
+  Settings are complete, and only one round per fund can be open at a time
+- **Settings** — help/contact email, staff notification recipients, privacy
+  notice link and version
+- **Access** (administrators) — who holds which capability; individual
+  capabilities are granted on each user's profile
+
+See `backlog/DECISIONS.md` DEC-007 to DEC-009. No public application form,
+review, decisions or payments yet: G03 is next in `backlog/BACKLOG.md`.
 
 ---
 
@@ -116,8 +123,8 @@ cycle is required on the live site to run it** — see `CLAUDE.md` and
    across the sibling plugins' release history.
 2. Read `docs/00-proposal.md` through `docs/08-source-notes.md` for the product
    brief, and `docs/grants-discovery.md` for the evidence it's grounded in.
-3. Read `backlog/BACKLOG.md` for the ordered task list (G00 and G01 are done;
-   G02 is next) and `backlog/DECISIONS.md` for what's already been decided.
+3. Read `backlog/BACKLOG.md` for the ordered task list (G00–G02 are done;
+   G03 is next) and `backlog/DECISIONS.md` for what's already been decided.
 4. Confirm the still-open rows in `docs/07-decisions-and-launch.md` with the
    project owner before opening a live funding round — none of them are
    guessed, and none should be.
@@ -130,3 +137,4 @@ cycle is required on the live site to run it** — see `CLAUDE.md` and
 |---|---|
 | 0.1.0 | Repository setup: git init, directory skeleton, `scripts/build-zip` (proven working), `docs/` (product brief adapted from the original build pack, naming corrected to be fund-agnostic, Settings/staff-notification requirement added), `backlog/BACKLOG.md` and `backlog/DECISIONS.md`, `CLAUDE.md`, `test-notes/TEST_PLAN.md`, `deployment-notes/`. No functional plugin code yet — see "Current status" above |
 | 0.2.0 | G01 bootstrap: activation/deactivation, `Migrator` with `grants_audit_events` and `grants_settings` tables, `grants_*` capabilities granted to Administrator only, per-user capability grants on the user profile (admin-only, audited), Rotary Grants menu with placeholder dashboard, Settings screen (help email, staff notification recipients), Access screen. **Contains migrations — deactivate/reactivate required when upgrading.** |
+| 0.3.0 | G02 funding rounds: `grants_rounds` table, round list/add/edit screens, draft→open→closed→archived status changes with readiness checks, one open round per fund (lock-serialised), server-time accepting window (opening inclusive, closing exclusive), exact GBP parsing, timezone handling that rejects non-existent/ambiguous clock-change times, per-round wording with automatic wording version, optimistic concurrency; privacy notice link/version added to Settings. **Contains a migration — deactivate/reactivate required when upgrading.** |

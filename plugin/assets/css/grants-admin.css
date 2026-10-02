@@ -25,3 +25,34 @@
 .grants-admin .grants-cap-list {
     margin: 0;
 }
+
+.grants-admin .grants-round-status-box {
+    background: #fff;
+    border: 1px solid #c3c4c7;
+    padding: 0 16px 12px;
+    margin: 16px 0;
+    max-width: 800px;
+}
+
+.grants-admin .grants-blockers {
+    list-style: disc;
+    margin-left: 20px;
+}
+
+.grants-admin .grants-inline-form {
+    display: inline-block;
+    margin-right: 8px;
+}
+
+.grants-admin .grants-required {
+    color: #b32d2e;
+}
+
+.grants-admin .grants-round-status--accepting {
+    color: #007017;
+    font-weight: 600;
+}
+
+.grants-admin .grants-round-list .num {
+    text-align: right;
+}

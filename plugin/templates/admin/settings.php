@@ -4,7 +4,8 @@
  *
  * Available variables:
  *   $values         array<string,string>  Field values keyed by setting key
- *                                         ('help_email', 'notification_recipients').
+ *                                         ('help_email', 'notification_recipients',
+ *                                         'privacy_notice_url', 'privacy_notice_version').
  *                                         After a failed save, these are what was submitted.
  *   $errors         array<string,string>  Error messages keyed by setting key
  *                                         (or 'forbidden' / 'db_error').
@@ -17,6 +18,14 @@ defined( 'ABSPATH' ) || exit;
 
 $help_error       = $errors['help_email'] ?? '';
 $recipients_error = $errors['notification_recipients'] ?? '';
+$privacy_error    = $errors['privacy_notice_url'] ?? '';
+$version_error    = $errors['privacy_notice_version'] ?? '';
+$field_ids        = [
+    'help_email'              => 'grants-help-email',
+    'notification_recipients' => 'grants-notification-recipients',
+    'privacy_notice_url'      => 'grants-privacy-notice-url',
+    'privacy_notice_version'  => 'grants-privacy-notice-version',
+];
 ?>
 <div class="wrap grants-admin">
     <h1><?php esc_html_e( 'Rotary Grants Settings', 'rotary-grants' ); ?></h1>
@@ -31,8 +40,8 @@ $recipients_error = $errors['notification_recipients'] ?? '';
             <ul>
                 <?php foreach ( $errors as $field => $message ) : ?>
                     <li>
-                        <?php if ( in_array( $field, [ 'help_email', 'notification_recipients' ], true ) ) : ?>
-                            <a href="#grants-<?php echo esc_attr( str_replace( '_', '-', $field ) ); ?>"><?php echo esc_html( $message ); ?></a>
+                        <?php if ( isset( $field_ids[ $field ] ) ) : ?>
+                            <a href="#<?php echo esc_attr( $field_ids[ $field ] ); ?>"><?php echo esc_html( $message ); ?></a>
                         <?php else : ?>
                             <?php echo esc_html( $message ); ?>
                         <?php endif; ?>
@@ -84,6 +93,36 @@ $recipients_error = $errors['notification_recipients'] ?? '';
                         ) );
                         ?>
                     </p>
+                </td>
+            </tr>
+        </table>
+
+        <h2><?php esc_html_e( 'Privacy notice', 'rotary-grants' ); ?></h2>
+        <table class="form-table" role="presentation">
+            <tr>
+                <th scope="row"><label for="grants-privacy-notice-url"><?php esc_html_e( 'Privacy notice link', 'rotary-grants' ); ?></label></th>
+                <td>
+                    <input type="url" id="grants-privacy-notice-url" name="privacy_notice_url" class="regular-text"
+                           value="<?php echo esc_attr( $values['privacy_notice_url'] ?? '' ); ?>"
+                           aria-describedby="grants-privacy-notice-url-desc<?php echo $privacy_error ? ' grants-privacy-notice-url-error' : ''; ?>"
+                           <?php echo $privacy_error ? 'aria-invalid="true"' : ''; ?>>
+                    <?php if ( $privacy_error ) : ?>
+                        <p class="grants-field-error" id="grants-privacy-notice-url-error"><?php echo esc_html( $privacy_error ); ?></p>
+                    <?php endif; ?>
+                    <p class="description" id="grants-privacy-notice-url-desc"><?php esc_html_e( 'Full address of the approved privacy notice applicants are asked to read. A funding round cannot be opened until this is set.', 'rotary-grants' ); ?></p>
+                </td>
+            </tr>
+            <tr>
+                <th scope="row"><label for="grants-privacy-notice-version"><?php esc_html_e( 'Privacy notice version', 'rotary-grants' ); ?></label></th>
+                <td>
+                    <input type="text" id="grants-privacy-notice-version" name="privacy_notice_version" class="regular-text"
+                           value="<?php echo esc_attr( $values['privacy_notice_version'] ?? '' ); ?>"
+                           aria-describedby="grants-privacy-notice-version-desc<?php echo $version_error ? ' grants-privacy-notice-version-error' : ''; ?>"
+                           <?php echo $version_error ? 'aria-invalid="true"' : ''; ?>>
+                    <?php if ( $version_error ) : ?>
+                        <p class="grants-field-error" id="grants-privacy-notice-version-error"><?php echo esc_html( $version_error ); ?></p>
+                    <?php endif; ?>
+                    <p class="description" id="grants-privacy-notice-version-desc"><?php esc_html_e( 'A short label such as "2026-1". Change it whenever the notice wording changes — each application records the version that was shown.', 'rotary-grants' ); ?></p>
                 </td>
             </tr>
         </table>

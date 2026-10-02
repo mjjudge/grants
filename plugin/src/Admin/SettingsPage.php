@@ -7,7 +7,8 @@ use Rotary\Grants\Services\SettingsService;
 defined( 'ABSPATH' ) || exit;
 
 /**
- * Settings screen: help/contact email and staff notification recipients.
+ * Settings screen: help/contact email, staff notification recipients, and
+ * privacy notice link/version.
  *
  * Routing:
  *   /wp-admin/admin.php?page=grants-settings   → form
@@ -35,6 +36,8 @@ class SettingsPage {
         $values  = [
             SettingsService::HELP_EMAIL              => $service->get( SettingsService::HELP_EMAIL ),
             SettingsService::NOTIFICATION_RECIPIENTS => $service->get( SettingsService::NOTIFICATION_RECIPIENTS ),
+            SettingsService::PRIVACY_NOTICE_URL      => $service->get( SettingsService::PRIVACY_NOTICE_URL ),
+            SettingsService::PRIVACY_NOTICE_VERSION  => $service->get( SettingsService::PRIVACY_NOTICE_VERSION ),
         ];
         $errors = [];
 
@@ -63,6 +66,8 @@ class SettingsPage {
         $input = [
             SettingsService::HELP_EMAIL              => sanitize_text_field( wp_unslash( $_POST['help_email'] ?? '' ) ),
             SettingsService::NOTIFICATION_RECIPIENTS => sanitize_textarea_field( wp_unslash( $_POST['notification_recipients'] ?? '' ) ),
+            SettingsService::PRIVACY_NOTICE_URL      => sanitize_text_field( wp_unslash( $_POST['privacy_notice_url'] ?? '' ) ), // validated as an http(s) URL by the service
+            SettingsService::PRIVACY_NOTICE_VERSION  => sanitize_text_field( wp_unslash( $_POST['privacy_notice_version'] ?? '' ) ),
         ];
 
         $result = ( new SettingsService() )->save( $input );

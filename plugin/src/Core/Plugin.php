@@ -16,6 +16,7 @@ class Plugin {
         if ( is_admin() ) {
             ( new \Rotary\Grants\Admin\Menu() )->register();
             ( new \Rotary\Grants\Admin\SettingsPage() )->register();
+            ( new \Rotary\Grants\Admin\RoundEditPage() )->register();
             ( new \Rotary\Grants\Admin\UserAccessSection() )->register();
             add_action( 'admin_enqueue_scripts', [ $this, 'enqueue_admin_assets' ] );
         }

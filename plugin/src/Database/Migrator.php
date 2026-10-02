@@ -28,6 +28,9 @@ class Migrator {
             Migrations\CreateAuditEventsTable::class,
             Migrations\CreateSettingsTable::class,
         ],
+        '0.3.0' => [
+            Migrations\CreateRoundsTable::class,
+        ],
     ];
 
     public function run(): void {

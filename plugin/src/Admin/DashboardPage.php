@@ -18,6 +18,7 @@ class DashboardPage {
         $settings        = new \Rotary\Grants\Services\SettingsService();
         $help_email_set  = $settings->help_email() !== '';
         $recipient_count = count( $settings->notification_recipients() );
+        $privacy_set     = $settings->get( \Rotary\Grants\Services\SettingsService::PRIVACY_NOTICE_URL ) !== '';
         $can_settings    = current_user_can( 'grants_manage_settings' );
         $settings_url    = add_query_arg( 'page', 'grants-settings', admin_url( 'admin.php' ) );
 

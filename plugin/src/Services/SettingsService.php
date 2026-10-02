@@ -16,6 +16,8 @@ class SettingsService {
 
     public const HELP_EMAIL              = 'help_email';
     public const NOTIFICATION_RECIPIENTS = 'notification_recipients';
+    public const PRIVACY_NOTICE_URL      = 'privacy_notice_url';
+    public const PRIVACY_NOTICE_VERSION  = 'privacy_notice_version';
 
     /** Upper bound on staff notification recipients — a typo guard, not a policy. */
     public const MAX_RECIPIENTS = 20;
@@ -24,6 +26,8 @@ class SettingsService {
     private const DEFAULTS = [
         self::HELP_EMAIL              => '',
         self::NOTIFICATION_RECIPIENTS => '',
+        self::PRIVACY_NOTICE_URL      => '',
+        self::PRIVACY_NOTICE_VERSION  => '',
     ];
 
     /** @var array<string, string>|null Per-request cache of stored values. */
@@ -121,6 +125,19 @@ class SettingsService {
         }
         $clean[ self::NOTIFICATION_RECIPIENTS ] = implode( "\n", $parsed['valid'] );
 
+        // Privacy notice — optional here; opening a round will require the link.
+        $url = trim( (string) ( $input[ self::PRIVACY_NOTICE_URL ] ?? '' ) );
+        if ( $url !== '' && ( ! filter_var( $url, FILTER_VALIDATE_URL ) || ! in_array( strtolower( (string) wp_parse_url( $url, PHP_URL_SCHEME ) ), [ 'http', 'https' ], true ) ) ) {
+            $errors->add( self::PRIVACY_NOTICE_URL, __( 'Enter a full web address starting with https:// (or http://), or leave the field empty.', 'rotary-grants' ) );
+        }
+        $clean[ self::PRIVACY_NOTICE_URL ] = $url;
+
+        $version = trim( (string) ( $input[ self::PRIVACY_NOTICE_VERSION ] ?? '' ) );
+        if ( mb_strlen( $version ) > 50 ) {
+            $errors->add( self::PRIVACY_NOTICE_VERSION, __( 'The privacy notice version must be 50 characters or fewer.', 'rotary-grants' ) );
+        }
+        $clean[ self::PRIVACY_NOTICE_VERSION ] = $version;
+
         if ( $errors->has_errors() ) {
             return $errors;
         }
@@ -164,6 +181,7 @@ class SettingsService {
                     'changed'         => $changed,
                     'help_email_set'  => $clean[ self::HELP_EMAIL ] !== '',
                     'recipient_count' => count( $parsed['valid'] ),
+                    'privacy_version' => $clean[ self::PRIVACY_NOTICE_VERSION ],
                 ]
             );
         }

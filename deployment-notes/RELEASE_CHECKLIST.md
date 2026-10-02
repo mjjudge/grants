@@ -32,6 +32,9 @@ convention.
 - [ ] Upload/install the new version
 - [ ] If a migration shipped: deactivate, reactivate, confirm it ran
 - [ ] Confirm the admin menu and Settings screen load without errors
+- [ ] Confirm Settings → General → Timezone is a **city** (London), not a
+      fixed "UTC+0" offset — round opening/closing times depend on it, and a
+      fixed offset ignores British Summer Time (the round screen warns if so)
 - [ ] Confirm Tree of Light (and other active sibling plugins) still work
 
 ## Post-deploy

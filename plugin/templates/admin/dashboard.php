@@ -5,6 +5,7 @@
  * Available variables:
  *   $help_email_set  bool    Whether a help/contact email is configured.
  *   $recipient_count int     Number of configured staff notification recipients.
+ *   $privacy_set     bool    Whether a privacy notice link is configured.
  *   $can_settings    bool    Whether the current user may open Settings.
  *   $settings_url    string  URL of the Settings screen.
  */
@@ -13,7 +14,7 @@ defined( 'ABSPATH' ) || exit;
 <div class="wrap grants-admin">
     <h1><?php esc_html_e( 'Rotary Grants', 'rotary-grants' ); ?></h1>
 
-    <p><?php esc_html_e( 'Funding rounds, applications, decisions and payments will appear here as they are built. Nothing can be submitted yet.', 'rotary-grants' ); ?></p>
+    <p><?php esc_html_e( 'Applications, decisions and payments will appear here as they are built. Funding rounds can be set up under Funding Rounds; nothing can be submitted yet.', 'rotary-grants' ); ?></p>
 
     <h2><?php esc_html_e( 'Configuration', 'rotary-grants' ); ?></h2>
     <table class="widefat striped grants-config-status">
@@ -40,6 +41,16 @@ defined( 'ABSPATH' ) || exit;
                         </span>
                     <?php else : ?>
                         <span class="grants-status grants-status--missing"><?php esc_html_e( 'None — required before a round can open', 'rotary-grants' ); ?></span>
+                    <?php endif; ?>
+                </td>
+            </tr>
+            <tr>
+                <th scope="row"><?php esc_html_e( 'Privacy notice link', 'rotary-grants' ); ?></th>
+                <td>
+                    <?php if ( $privacy_set ) : ?>
+                        <span class="grants-status grants-status--ok"><?php esc_html_e( 'Set', 'rotary-grants' ); ?></span>
+                    <?php else : ?>
+                        <span class="grants-status grants-status--missing"><?php esc_html_e( 'Not set — required before a round can open', 'rotary-grants' ); ?></span>
                     <?php endif; ?>
                 </td>
             </tr>
