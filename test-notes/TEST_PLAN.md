@@ -24,20 +24,66 @@ For a quick smoke test after a patch deployment, run only the sections marked
 
 ---
 
-## Section 1 — Plugin activation and coexistence (G01) **[SMOKE]**
+## Section 1 — Plugin activation, access and settings (G01) **[SMOKE]**
 
-- [ ] Plugin activates without errors with Tree of Light **inactive**
-- [ ] Rotary Grants top-level admin menu appears, gated on `grants_access`
-- [ ] Plugin activates and functions correctly with Tree of Light **active**
-      alongside it — run Tree of Light's own `[SMOKE]` sections and confirm no
-      change in its behaviour
-- [ ] Deactivating Tree of Light does not break Rotary Grants; deactivating
-      Rotary Grants does not break Tree of Light
-- [ ] A user with only `subscriber`/`editor` WordPress roles (no `grants_*`
-      capability) is denied the admin menu **and** denied by direct URL/request
-      to any admin-post/REST route this plugin registers
-- [ ] Settings screen exists; help-email and notification-recipient fields save
-      and reload correctly; capability-gated
+### 1a. Activation and coexistence
+
+- [ ] With Tree of Light **inactive** (or on a site without it), activate
+      Rotary Grants — no errors; a **Rotary Grants** menu (awards icon) appears
+      with Dashboard, Settings and Access
+- [ ] Tables `<prefix>grants_audit_events` and `<prefix>grants_settings` exist;
+      option `grants_db_version` = current version
+- [ ] Deactivate and reactivate — no error, no duplicate tables, settings and
+      per-user access grants still present afterwards
+- [ ] With Tree of Light **active** alongside, run Tree of Light's own `[SMOKE]`
+      sections and confirm no change in its behaviour; both menus appear
+      independently
+- [ ] Deactivate Tree of Light with Rotary Grants still active — Rotary Grants
+      menu, Dashboard and Settings still load; deactivate Rotary Grants — Tree
+      of Light still loads
+- [ ] `grants-admin.css` loads on Rotary Grants pages only (view source on a
+      Tree of Light page: not present)
+
+### 1b. Capabilities and access
+
+- [ ] Users → Roles (or a role-inspection plugin): Administrator holds all
+      eleven `grants_*` capabilities; **Editor holds none**; no other role
+      holds any
+- [ ] Log in as an **editor** with no grants access: no Rotary Grants menu;
+      visiting `wp-admin/admin.php?page=grants-dashboard`, `…page=grants-settings`
+      and `…page=grants-access` directly each gives "Sorry, you are not allowed"
+      (403)
+- [ ] Same three URLs as a **subscriber** → 403
+- [ ] As administrator, edit a test subscriber's profile → **Rotary Grants
+      access** section is shown; tick only "Add reviews and recommendations",
+      save → reopen the profile: both that and the "Access" capability are
+      ticked (access is implied)
+- [ ] Rotary Grants → Access lists that user with `grants_access` and
+      `grants_review`; administrators listed "(via role)"
+- [ ] Log in as that subscriber: Rotary Grants → Dashboard loads; Settings and
+      Access are not in the menu and give 403 by direct URL; their own profile
+      page does **not** show the Rotary Grants access section
+- [ ] As administrator, untick everything for that user and save → user
+      disappears from the Access screen; Dashboard URL gives them 403
+- [ ] `<prefix>grants_audit_events` has `access_changed` rows for the grant and
+      revoke, with the capability names only
+
+### 1c. Settings
+
+- [ ] Rotary Grants → Settings shows Help/contact email and New-application
+      recipients; Dashboard shows both as "Not set / None" until configured
+- [ ] Enter `not-an-email` as help email and `a@example.org, bogus` as
+      recipients → not saved; error summary at top (focused), field errors
+      beside each field, typed values still in the fields
+- [ ] Enter a valid help email and three recipients mixing commas, new lines
+      and a case-different duplicate → "Settings saved"; reload shows one
+      address per line, duplicate removed; Dashboard shows "Set" and
+      "3 recipients"
+- [ ] 21 recipients → rejected with "no more than 20"
+- [ ] Clearing the help email is allowed (it is only required to open a round)
+- [ ] `<prefix>grants_audit_events` has a `settings_updated` row naming the
+      changed keys and recipient count — **no email addresses in the summary**
+- [ ] Saving again without changes writes no new audit row
 
 ## Section 2 — Funding round setup (G02)
 

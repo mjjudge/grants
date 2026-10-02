@@ -1,0 +1,27 @@
+/* Rotary Grants — admin styles. Loaded only on grants-* admin pages. */
+
+.grants-admin .grants-config-status th {
+    width: 16em;
+}
+
+.grants-admin .grants-status--ok {
+    color: #007017;
+}
+
+.grants-admin .grants-status--missing {
+    color: #b32d2e;
+}
+
+.grants-admin .grants-field-error {
+    color: #b32d2e;
+    font-weight: 600;
+    margin: 4px 0;
+}
+
+.grants-admin [aria-invalid="true"] {
+    border-color: #b32d2e;
+}
+
+.grants-admin .grants-cap-list {
+    margin: 0;
+}

@@ -1,0 +1,36 @@
+<?php
+
+namespace Rotary\Grants\Core;
+
+defined( 'ABSPATH' ) || exit;
+
+class Plugin {
+
+    public function boot(): void {
+        load_plugin_textdomain(
+            'rotary-grants',
+            false,
+            dirname( plugin_basename( GRANTS_PLUGIN_FILE ) ) . '/languages'
+        );
+
+        if ( is_admin() ) {
+            ( new \Rotary\Grants\Admin\Menu() )->register();
+            ( new \Rotary\Grants\Admin\SettingsPage() )->register();
+            ( new \Rotary\Grants\Admin\UserAccessSection() )->register();
+            add_action( 'admin_enqueue_scripts', [ $this, 'enqueue_admin_assets' ] );
+        }
+    }
+
+    public function enqueue_admin_assets( string $hook_suffix ): void {
+        // Load only on Rotary Grants admin pages — every page slug starts "grants-".
+        if ( ! str_contains( $hook_suffix, 'grants-' ) ) {
+            return;
+        }
+        wp_enqueue_style(
+            'grants-admin',
+            GRANTS_PLUGIN_URL . 'assets/css/grants-admin.css',
+            [],
+            GRANTS_VERSION
+        );
+    }
+}

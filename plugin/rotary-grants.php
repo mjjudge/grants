@@ -2,7 +2,7 @@
 /**
  * Plugin Name: Rotary Grants
  * Description: Grant application, decision, and payment record-keeping for Rotary in the Vale funding rounds — not tied to any single campaign (Tree of Light or otherwise).
- * Version:     0.1.0
+ * Version:     0.2.0
  * Requires at least: 6.0
  * Requires PHP: 8.2
  * Author:      Rotary in the Vale
@@ -13,7 +13,7 @@
 
 defined( 'ABSPATH' ) || exit;
 
-define( 'GRANTS_VERSION',     '0.1.0' );
+define( 'GRANTS_VERSION',     '0.2.0' );
 define( 'GRANTS_PLUGIN_FILE', __FILE__ );
 define( 'GRANTS_PLUGIN_DIR',  plugin_dir_path( __FILE__ ) );
 define( 'GRANTS_PLUGIN_URL',  plugin_dir_url( __FILE__ ) );
@@ -29,8 +29,9 @@ spl_autoload_register( static function ( string $class ): void {
     }
 } );
 
-// Intentionally no activation/boot hooks yet — this is the repository-setup
-// commit only (see docs/grants-discovery.md). G01 in backlog/BACKLOG.md adds
-// Rotary\Grants\Core\Installer and Rotary\Grants\Core\Plugin and wires them in
-// here, following the same shape as Tree of Light's own
-// plugin/tree-of-light.php.
+register_activation_hook( __FILE__,   [ Rotary\Grants\Core\Installer::class, 'activate'   ] );
+register_deactivation_hook( __FILE__, [ Rotary\Grants\Core\Installer::class, 'deactivate' ] );
+
+add_action( 'plugins_loaded', static function (): void {
+    ( new Rotary\Grants\Core\Plugin() )->boot();
+} );

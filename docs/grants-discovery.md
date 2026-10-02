@@ -217,7 +217,7 @@ namespace, its own migrator, its own capability prefix, its own `dist/`.
   ever actually needed — deferred until a specific fund's rules demonstrate the
   label isn't enough.
 
-## G01 — next concrete step (not yet done)
+## G01 — next concrete step (done in 0.2.0 — see README version history and backlog/DECISIONS.md DEC-007/DEC-008)
 
 This document, and the rest of this repository's setup (git init, directory
 skeleton, `scripts/build-zip`, all of `docs/`, `backlog/`, `CLAUDE.md`,
