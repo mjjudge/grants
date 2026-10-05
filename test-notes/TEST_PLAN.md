@@ -362,10 +362,42 @@ treasurer (`grants_pay` only). Each also needs `grants_access`.
 
 ## Section 7 — Decisions and awards (G07) **[SMOKE]**
 
-- [ ] Approve/decline/defer all record correctly; only approve creates an award
-- [ ] Two concurrent approvals that would together exceed the round budget —
-      only one succeeds
-- [ ] An award cannot be reduced below amounts already paid against it
+Setup: a round with a £10,000 budget; three linked applications (£6,000,
+£6,000, £1,000); a decision maker (`grants_decide`) who has declared no
+conflict on each.
+
+- [ ] Approve the first at £6,000 with a "before payment" condition → award
+      shown; status Decided; budget box shows £6,000 approved, £4,000
+      available
+- [ ] Approve the second at £6,000 → **warning**: "£2,000 over its budget
+      (£4,000 is available)"; everything typed is still in the form; no award
+      created
+- [ ] Tick the confirmation **without** a note → still refused; add a note
+      ("£2,000 from the club charity account, agreed …") → recorded; the
+      award, the Awards screen and the round edit screen all show "over budget
+      by £2,000" with the note
+- [ ] Approve the third at £500 (a part award) → warned again (the round is
+      already over), recorded only with a note
+- [ ] Decline an application → no award; Decided. Defer one → back to Under
+      review, no award
+- [ ] A decided application shows "Reopen this decision" (reason required);
+      reopening keeps the award; a revised approval changes the same award
+      and the decision history shows both decisions, the first superseded
+- [ ] Revising after reopening to "Decline" cancels the award (nothing paid
+      yet) and frees its amount in the budget
+- [ ] Try to lower the round budget below what's approved → refused; raising
+      it works
+- [ ] Mark a condition as met with evidence → shown with who/when; the Awards
+      screen's "outstanding" count drops
+- [ ] "Prepare the decision notice": suggested wording has the amount and
+      conditions and a "don't email bank details" line, and **not** the
+      internal reason or funding note; save draft → nothing sent; "Send to
+      applicant" → email arrives (Mailpit), can't be sent twice
+- [ ] Two people approving different £6,000 applications at the same moment
+      against £10,000: only one succeeds without the over-budget confirmation
+      (verified by script — see commit notes)
+- [ ] A reviewer sees decisions and the award but no decision form; a member
+      with a declared conflict can't decide; an editor is refused (403)
 
 ## Section 8 — Payment ledger (G08) **[SMOKE]**
 

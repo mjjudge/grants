@@ -18,6 +18,7 @@
  *   $checks         array<string,string>  Eligibility check => label.
  *   $c_nonce_action string      Nonce action for committee forms.
  *   $c_nonce_field  string      Nonce field name.
+ *   …plus the decision-panel variables documented in decision-panel.php.
  */
 defined( 'ABSPATH' ) || exit;
 
@@ -38,6 +39,7 @@ $kind_labels = [
     'info_request' => __( 'Request for more information', 'rotary-grants' ),
     'addendum'     => __( 'Information received from applicant', 'rotary-grants' ),
     'status'       => __( 'Status', 'rotary-grants' ),
+    'decision_notice' => __( 'Decision notice to applicant', 'rotary-grants' ),
 ];
 ?>
 <h2 id="grants-committee"><?php esc_html_e( 'Committee', 'rotary-grants' ); ?></h2>
@@ -167,6 +169,8 @@ $kind_labels = [
     </details>
 <?php endif; ?>
 
+<?php include __DIR__ . '/decision-panel.php'; ?>
+
 <h3><?php esc_html_e( 'Committee record', 'rotary-grants' ); ?></h3>
 <?php if ( ! $notes ) : ?>
     <p><?php esc_html_e( 'Nothing recorded yet.', 'rotary-grants' ); ?></p>
@@ -180,14 +184,14 @@ $kind_labels = [
                     <?php if ( $n->kind === 'addendum' && $n->received_at ) : ?>
                         · <?php echo esc_html( sprintf( /* translators: %s: date */ __( 'received %s', 'rotary-grants' ), wp_date( get_option( 'date_format' ), strtotime( $n->received_at . ' UTC' ) ) ) ); ?>
                     <?php endif; ?>
-                    <?php if ( $n->kind === 'info_request' ) : ?>
+                    <?php if ( $n->kind === 'info_request' || $n->kind === 'decision_notice' ) : ?>
                         · <?php echo $n->sent_at
                             ? esc_html( sprintf( /* translators: 1: date, 2: name */ __( 'sent %1$s by %2$s', 'rotary-grants' ), SiteTime::display( $n->sent_at ), (string) $n->sender_name ) )
                             : '<span class="grants-badge grants-badge--late">' . esc_html__( 'Draft — not sent', 'rotary-grants' ) . '</span>'; ?>
                     <?php endif; ?>
                 </div>
                 <div class="grants-timeline__body"><?php echo nl2br( esc_html( (string) $n->body ) ); // phpcs:ignore WordPress.Security.EscapeOutput ?></div>
-                <?php if ( $n->kind === 'info_request' && ! $n->sent_at && $can_progress ) : ?>
+                <?php if ( ! $n->sent_at && ( ( $n->kind === 'info_request' && $can_progress ) || ( $n->kind === 'decision_notice' && $can_send_notice ) ) ) : ?>
                     <?php $form_open( 'info_send', 'grants-inline-form' ); ?>
                         <input type="hidden" name="note_id" value="<?php echo esc_attr( (string) $n->id ); ?>">
                         <button type="submit" class="button button-primary button-small" onclick="return confirm(<?php echo esc_attr( wp_json_encode( __( 'Email this request to the applicant now?', 'rotary-grants' ) ) ); ?>);"><?php esc_html_e( 'Send to applicant', 'rotary-grants' ); ?></button>

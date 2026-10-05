@@ -52,6 +52,11 @@ class Migrator {
             Migrations\CreateApplicationNotesTable::class,
             Migrations\AddApplicationDuplicateAndNotificationLink::class,
         ],
+        '0.8.0' => [
+            Migrations\CreateDecisionsTable::class,
+            Migrations\CreateAwardsTable::class,
+            Migrations\CreateAwardConditionsTable::class,
+        ],
     ];
 
     public function run(): void {

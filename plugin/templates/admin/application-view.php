@@ -70,6 +70,11 @@ $groups = [
         'addendum_added'  => __( 'Information recorded.', 'rotary-grants' ),
         'status_changed'  => __( 'Status changed.', 'rotary-grants' ),
         'duplicate_marked'   => __( 'Marked as a duplicate.', 'rotary-grants' ),
+        'decided'            => __( 'Decision recorded.', 'rotary-grants' ),
+        'decided_over_budget' => __( 'Decision recorded — beyond the round budget, with your funding note.', 'rotary-grants' ),
+        'reopened'           => __( 'Decision reopened — the application is back under review.', 'rotary-grants' ),
+        'condition_met'      => __( 'Condition marked as met.', 'rotary-grants' ),
+        'notice_drafted'     => __( 'Draft decision notice saved — it has not been sent.', 'rotary-grants' ),
         'duplicate_unmarked' => __( 'Duplicate mark removed.', 'rotary-grants' ),
         'already_entered' => __( 'This form had already been saved — showing the application it created.', 'rotary-grants' ),
     ];

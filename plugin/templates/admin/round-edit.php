@@ -21,6 +21,8 @@
  *   $fixed_offset bool                  True if the site timezone is a fixed UTC offset
  *                                       (no summer time) rather than a named city.
  *   $general_url  string                Settings → General URL (where the timezone is set).
+ *   $budget       array|null            BudgetService::summary() for an existing round.
+ *   $awards_url   string                Awards screen for this round ('' when adding).
  *   $list_url     string                Round list URL.
  *   $save_nonce   array{0:string,1:string}       Nonce action and field for the save form.
  *   $status_nonce array{0:string,1:string}|null  Nonce action and field for status forms.
@@ -184,6 +186,23 @@ $notice_text = [
                 ) );
                 ?>
             </p>
+
+            <?php if ( $budget && $budget['award_count'] ) : ?>
+                <p>
+                    <?php echo esc_html( sprintf(
+                        /* translators: 1: committed, 2: number of awards */
+                        __( 'Approved so far: %1$s across %2$d awards.', 'rotary-grants' ),
+                        \Rotary\Grants\Support\Money::format_gbp( $budget['committed'] ),
+                        $budget['award_count']
+                    ) ); ?>
+                    <?php if ( $budget['over_committed'] ) : ?>
+                        <strong class="grants-over"><?php echo esc_html( sprintf( /* translators: %s: amount */ __( 'Over budget by %s (funded from elsewhere — see Awards).', 'rotary-grants' ), \Rotary\Grants\Support\Money::format_gbp( $budget['over_committed'] ) ) ); ?></strong>
+                    <?php else : ?>
+                        <?php echo esc_html( sprintf( /* translators: %s: amount */ __( 'Available: %s.', 'rotary-grants' ), \Rotary\Grants\Support\Money::format_gbp( (int) $budget['available'] ) ) ); ?>
+                    <?php endif; ?>
+                    <a href="<?php echo esc_url( $awards_url ); ?>"><?php esc_html_e( 'View awards', 'rotary-grants' ); ?></a>
+                </p>
+            <?php endif; ?>
 
             <?php if ( $blockers && in_array( RoundStatus::OPEN, $transitions, true ) ) : ?>
                 <p><?php esc_html_e( 'Before this round can open:', 'rotary-grants' ); ?></p>

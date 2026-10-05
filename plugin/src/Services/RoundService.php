@@ -233,6 +233,20 @@ class RoundService {
             }
         }
 
+        // Approvals reserve budget; the budget can't be lowered below them
+        // (going over budget is only ever a recorded decision with a funding
+        // note — DEC-014). Raising it, or leaving it alone while already
+        // knowingly over-committed, is fine.
+        $committed = ( new BudgetService() )->commitments( $id );
+        $lowered   = $clean['budget_pence'] === null || ( $round->budget_pence !== null && $clean['budget_pence'] < $round->budget_pence );
+        if ( $committed > 0 && $lowered && ( $clean['budget_pence'] === null || $clean['budget_pence'] < $committed ) ) {
+            return new \WP_Error( 'budget', sprintf(
+                /* translators: %s: amount already approved */
+                __( 'The budget cannot be less than the %s already approved in this round.', 'rotary-grants' ),
+                \Rotary\Grants\Support\Money::format_gbp( $committed )
+            ) );
+        }
+
         $changed = [];
         foreach ( self::EDITABLE_COLUMNS as $col ) {
             if ( (string) $clean[ $col ] !== (string) $round->$col || ( $clean[ $col ] === null ) !== ( $round->$col === null ) ) {

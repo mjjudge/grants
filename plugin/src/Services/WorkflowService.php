@@ -24,6 +24,7 @@ class WorkflowService {
     public const INFO_REQUEST = 'info_request';
     public const ADDENDUM     = 'addendum';
     public const STATUS       = 'status';
+    public const DECISION_NOTICE = 'decision_notice';
 
     /** grants_review or grants_manage_organisations (reviewer / coordinator). */
     public static function can_progress(): bool {
@@ -84,6 +85,15 @@ class WorkflowService {
         if ( $fresh && ApplicationStatus::can_transition( $fresh->status, $to ) ) {
             $this->apply_transition( $fresh, $to, $reason );
         }
+    }
+
+    /**
+     * Status change outside the manual transition map — used only by
+     * DecisionService (into/out of "decided"), which has already checked
+     * grants_decide and conflicts. Returns false on a stale row.
+     */
+    public function force_status( object $app, string $to, string $reason ): bool {
+        return $this->apply_transition( $app, $to, $reason ) === true;
     }
 
     private function apply_transition( object $app, string $to, string $reason ): true|\WP_Error {
@@ -150,12 +160,24 @@ class WorkflowService {
      * @return true|\WP_Error
      */
     public function send_info_request( int $note_id ): true|\WP_Error {
-        if ( ! self::can_progress() ) {
-            return self::forbidden();
-        }
+        return $this->send_message( $note_id );
+    }
+
+    /**
+     * Send a drafted message to the applicant — an information request or a
+     * decision notice. Queues the email; an information request also moves
+     * the application to "more information requested". Sending twice is
+     * refused.
+     *
+     * @return true|\WP_Error
+     */
+    public function send_message( int $note_id ): true|\WP_Error {
         $note = $this->find_note( $note_id );
-        if ( ! $note || $note->kind !== self::INFO_REQUEST ) {
-            return new \WP_Error( 'not_found', __( 'Request not found.', 'rotary-grants' ) );
+        if ( ! $note || ! in_array( $note->kind, [ self::INFO_REQUEST, self::DECISION_NOTICE ], true ) ) {
+            return new \WP_Error( 'not_found', __( 'Message not found.', 'rotary-grants' ) );
+        }
+        if ( $note->kind === self::INFO_REQUEST ? ! self::can_progress() : ! self::can_send_decision() ) {
+            return self::forbidden();
         }
         $gate = ( new ConflictService() )->require_clear( (int) $note->application_id );
         if ( $gate ) {
@@ -181,10 +203,34 @@ class WorkflowService {
         if ( $claimed !== 1 ) {
             return new \WP_Error( 'already_sent', __( 'This request has already been sent.', 'rotary-grants' ) );
         }
-        ( new NotificationService() )->queue_info_request( (int) $app->id, $note_id, $email );
-        $this->system_transition( $app, ApplicationStatus::MORE_INFO_REQUESTED, __( 'More information requested from the applicant.', 'rotary-grants' ) );
-        AuditLogger::record( 'info_request_sent', 'application', (int) $app->id, [ 'note_id' => $note_id ] );
+        ( new NotificationService() )->queue_message( (int) $app->id, $note_id, $email, $note->kind === self::INFO_REQUEST ? NotificationService::KIND_INFO : NotificationService::KIND_DECISION );
+        if ( $note->kind === self::INFO_REQUEST ) {
+            $this->system_transition( $app, ApplicationStatus::MORE_INFO_REQUESTED, __( 'More information requested from the applicant.', 'rotary-grants' ) );
+        }
+        AuditLogger::record( $note->kind . '_sent', 'application', (int) $app->id, [ 'note_id' => $note_id ] );
         return true;
+    }
+
+    /** grants_decide, or a coordinator (grants_manage_organisations). */
+    public static function can_send_decision(): bool {
+        return current_user_can( 'grants_decide' ) || current_user_can( 'grants_manage_organisations' );
+    }
+
+    /**
+     * Draft the decision notice for an application that has an effective
+     * decision. Nothing is sent until send_message() — editing a note never
+     * sends another email (docs/03).
+     *
+     * @return int|\WP_Error
+     */
+    public function draft_decision_notice( int $application_id, string $body ): int|\WP_Error {
+        if ( ! self::can_send_decision() ) {
+            return self::forbidden();
+        }
+        if ( ! ( new DecisionService() )->effective( $application_id ) ) {
+            return new \WP_Error( 'no_decision', __( 'Record a decision before preparing the notice.', 'rotary-grants' ) );
+        }
+        return $this->guarded_insert( $application_id, self::DECISION_NOTICE, $body, 5000 );
     }
 
     /**
@@ -193,12 +239,12 @@ class WorkflowService {
      * @return true|\WP_Error
      */
     public function discard_draft( int $note_id ): true|\WP_Error {
-        if ( ! self::can_progress() ) {
-            return self::forbidden();
-        }
         $note = $this->find_note( $note_id );
-        if ( ! $note || $note->kind !== self::INFO_REQUEST || $note->sent_at !== null ) {
+        if ( ! $note || ! in_array( $note->kind, [ self::INFO_REQUEST, self::DECISION_NOTICE ], true ) || $note->sent_at !== null ) {
             return new \WP_Error( 'not_draft', __( 'Only an unsent draft can be discarded.', 'rotary-grants' ) );
+        }
+        if ( $note->kind === self::INFO_REQUEST ? ! self::can_progress() : ! self::can_send_decision() ) {
+            return self::forbidden();
         }
         $gate = ( new ConflictService() )->require_clear( (int) $note->application_id );
         if ( $gate ) {

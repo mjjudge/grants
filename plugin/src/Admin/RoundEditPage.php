@@ -171,6 +171,8 @@ class RoundEditPage {
         // never observes summer time, so deadlines would drift by an hour.
         $fixed_offset  = (bool) preg_match( '/^[+-]\d{2}:\d{2}$/', $timezone );
         $general_url   = admin_url( 'options-general.php' );
+        $budget        = $round ? ( new \Rotary\Grants\Services\BudgetService() )->summary( $round ) : null;
+        $awards_url    = $round ? add_query_arg( [ 'page' => 'grants-awards', 'round_id' => $round->id ], admin_url( 'admin.php' ) ) : '';
         $list_url      = add_query_arg( 'page', 'grants-rounds', admin_url( 'admin.php' ) );
         $save_nonce    = [ self::SAVE_NONCE_ACTION, self::NONCE_FIELD ];
         $status_nonce  = $round ? [ self::STATUS_NONCE_PREFIX . $round->id, self::NONCE_FIELD ] : null;

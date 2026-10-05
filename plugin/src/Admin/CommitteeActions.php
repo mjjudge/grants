@@ -2,7 +2,9 @@
 
 namespace Rotary\Grants\Admin;
 
+use Rotary\Grants\Services\AwardService;
 use Rotary\Grants\Services\ConflictService;
+use Rotary\Grants\Services\DecisionService;
 use Rotary\Grants\Services\NotificationService;
 use Rotary\Grants\Services\ReviewService;
 use Rotary\Grants\Services\WorkflowService;
@@ -24,6 +26,7 @@ class CommitteeActions {
     private const ACTIONS = [
         'declare', 'declare_round', 'review_save', 'note_add', 'info_draft', 'info_send', 'info_discard',
         'addendum_add', 'status_change', 'duplicate_mark', 'duplicate_unmark',
+        'decide', 'reopen', 'condition_fulfil', 'notice_draft',
     ];
 
     public function register(): void {
@@ -118,6 +121,64 @@ class CommitteeActions {
     public function handle_duplicate_unmark(): void {
         $app = $this->guard();
         $this->finish( $app, ( new WorkflowService() )->unmark_duplicate( $app, $this->text( 'reason' ) ), 'duplicate_unmarked' );
+    }
+
+    public function handle_decide(): void {
+        $app   = $this->guard();
+        $conds = [];
+        foreach ( (array) wp_unslash( $_POST['conditions'] ?? [] ) as $row ) {
+            $conds[] = [
+                'text'           => sanitize_textarea_field( (string) ( $row['text'] ?? '' ) ),
+                'before_payment' => ! empty( $row['before_payment'] ),
+            ];
+        }
+        $input = [
+            'type'                => $this->text( 'decision_type', true ),
+            'amount'              => $this->text( 'amount' ),
+            'reason'              => $this->text( 'reason' ),
+            'meeting_reference'   => $this->text( 'meeting_reference' ),
+            'decided_on'          => $this->text( 'decided_on' ),
+            'conditions'          => $conds,
+            'confirm_over_budget' => ( $_POST['confirm_over_budget'] ?? '' ) === '1',
+            'funding_note'        => $this->text( 'funding_note' ),
+        ];
+        $result = ( new DecisionService() )->decide( $app, $input );
+        if ( is_wp_error( $result ) ) {
+            // Keep what was typed (admin-only data) so an over-budget warning
+            // or a typo doesn't lose the form.
+            set_transient( self::decision_key( $app ), [
+                'input' => $input,
+                'code'  => $result->get_error_code(),
+                'data'  => $result->get_error_data(),
+            ], 600 );
+        }
+        $this->finish( $app, $result, is_array( $result ) && $result['over_budget_pence'] > 0 ? 'decided_over_budget' : 'decided' );
+    }
+
+    public function handle_reopen(): void {
+        $app = $this->guard();
+        $this->finish( $app, ( new DecisionService() )->reopen( $app, absint( $_POST['row_version'] ?? 0 ), $this->text( 'reason' ) ), 'reopened' );
+    }
+
+    public function handle_condition_fulfil(): void {
+        $app = $this->guard();
+        $this->finish( $app, ( new AwardService() )->fulfil_condition( absint( $_POST['condition_id'] ?? 0 ), $this->text( 'evidence' ) ), 'condition_met' );
+    }
+
+    public function handle_notice_draft(): void {
+        $app = $this->guard();
+        $this->finish( $app, ( new WorkflowService() )->draft_decision_notice( $app, $this->text( 'body' ) ), 'notice_drafted' );
+    }
+
+    /** Decision form state saved after a failed decide (read once). */
+    public static function take_decision_state( int $application_id ): ?array {
+        $state = get_transient( self::decision_key( $application_id ) );
+        delete_transient( self::decision_key( $application_id ) );
+        return is_array( $state ) ? $state : null;
+    }
+
+    private static function decision_key( int $application_id ): string {
+        return 'grants_decision_form_' . get_current_user_id() . '_' . $application_id;
     }
 
     // -------------------------------------------------------------------------

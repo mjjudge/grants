@@ -5,6 +5,9 @@ namespace Rotary\Grants\Admin;
 use Rotary\Grants\Services\ApplicationForm;
 use Rotary\Grants\Services\ApplicationService;
 use Rotary\Grants\Services\ApplicationStatus;
+use Rotary\Grants\Services\AwardService;
+use Rotary\Grants\Services\BudgetService;
+use Rotary\Grants\Services\DecisionService;
 use Rotary\Grants\Services\ConflictService;
 use Rotary\Grants\Services\ContactService;
 use Rotary\Grants\Services\ReviewService;
@@ -121,6 +124,21 @@ class ApplicationListPage {
             ? array_values( array_filter( $service->list( null, null, $application->organisation_id ), static fn( $a ) => $a->id !== $application->id ) )
             : [];
         $duplicate_of     = $application->duplicate_of_id ? $service->find( $application->duplicate_of_id ) : null;
+        // Decision panel (G07).
+        $decisions        = new DecisionService();
+        $can_decide       = current_user_can( 'grants_decide' );
+        $award            = ( new AwardService() )->for_application( $application->id );
+        $award_conditions = $award ? ( new AwardService() )->conditions( $award->id ) : [];
+        $award_paid       = $award ? ( new AwardService() )->net_paid( $award->id ) : 0;
+        $effective        = $decisions->effective( $application->id );
+        $decision_history = $is_clear ? $decisions->history( $application->id ) : [];
+        $round_row        = ( new RoundService() )->find( $application->round_id );
+        $budget           = $round_row ? ( new BudgetService() )->summary( $round_row ) : null;
+        $decision_state   = CommitteeActions::take_decision_state( $application->id );
+        $notice_template  = $effective ? $decisions->notice_template( $application, $effective ) : '';
+        $notice_sent      = (bool) array_filter( $notes, static fn( $n ) => $n->kind === 'decision_notice' && $n->sent_at !== null );
+        $can_send_notice  = WorkflowService::can_send_decision();
+        $can_conditions   = current_user_can( 'grants_manage_organisations' ) || $can_decide;
         $c_nonce_action   = CommitteeActions::NONCE_ACTION;
         $c_nonce_field    = CommitteeActions::NONCE_FIELD;
         $nonce_action = self::NONCE_ACTION;

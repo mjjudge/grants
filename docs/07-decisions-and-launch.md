@@ -14,7 +14,7 @@ guessed.
 | Settings and staff notification | A Settings screen with a configurable notification recipient list, separate from the applicant acknowledgement | **Decided to build** — see `backlog/DECISIONS.md`; confirm the actual initial recipient addresses before a live round opens |
 | Applicants | Organisations and eligible community groups; no login | Eligibility wording from source remains current, per fund |
 | Round identity | Fund name + year label, with separate actual payment dates | Award meeting/payment year and accounting reporting, per fund |
-| Budget | Manually set distributable budget, per round | Amount, authority to amend, and over-budget policy |
+| Budget | Manually set distributable budget, per round. **Over-budget policy decided (DEC-014):** allowed with a warning and a mandatory note of where the extra money comes from | Amount and authority to amend |
 | Deadline | Configured date/time in WordPress timezone | Open/close dates and late-application handling |
 | Award limits | No invented cap | Whether a cap/minimum is wanted, per fund |
 | Repeat applicants | Allowed; previous history visible | Repeat-award rules and multiple applications per round |

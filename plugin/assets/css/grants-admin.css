@@ -181,3 +181,42 @@
 .grants-admin .grants-findings-form td {
     vertical-align: middle;
 }
+
+.grants-admin .grants-budget-box {
+    max-width: 700px;
+    margin-bottom: 12px;
+}
+
+.grants-admin .grants-over,
+.grants-admin .grants-over-note strong {
+    color: #b32d2e;
+}
+
+.grants-admin .grants-award-box {
+    border-left: 4px solid #00a32a;
+    background: #fff;
+    padding: 4px 12px;
+    margin: 10px 0;
+    max-width: 900px;
+}
+
+.grants-admin .grants-award-box--cancelled {
+    border-left-color: #8c8f94;
+}
+
+.grants-admin .grants-decision-form,
+.grants-admin .grants-notice-draft {
+    max-width: 900px;
+    margin: 12px 0;
+}
+
+.grants-admin .grants-over-budget {
+    border: 1px dashed #c3c4c7;
+    padding: 4px 12px;
+    margin: 10px 0;
+}
+
+.grants-admin .grants-over-budget--active {
+    border: 2px solid #dba617;
+    background: #fcf9e8;
+}

@@ -30,6 +30,7 @@ class NotificationService {
     public const KIND_ACK   = 'applicant_ack';
     public const KIND_STAFF = 'staff_new_application';
     public const KIND_INFO  = 'info_request';
+    public const KIND_DECISION = 'decision_notice';
 
     public const STATUS_PENDING = 'pending';
     public const STATUS_SENT    = 'sent';
@@ -118,13 +119,21 @@ class NotificationService {
      * Idempotent per note.
      */
     public function queue_info_request( int $application_id, int $note_id, string $recipient ): int {
+        return $this->queue_message( $application_id, $note_id, $recipient, self::KIND_INFO );
+    }
+
+    /**
+     * Queue a staff-written message (information request or decision notice)
+     * built from a grants_application_notes row. Idempotent per note.
+     */
+    public function queue_message( int $application_id, int $note_id, string $recipient, string $kind ): int {
         global $wpdb;
         $now = SiteTime::now_utc();
         return (int) $wpdb->query( $wpdb->prepare(
             "INSERT IGNORE INTO {$this->table()}
                 (application_id, kind, related_id, recipient, status, attempts, next_attempt_at, command_key, created_at)
              VALUES (%d, %s, %d, %s, %s, 0, %s, %s, %s)",
-            $application_id, self::KIND_INFO, $note_id, $recipient, self::STATUS_PENDING, $now, self::KIND_INFO . ':' . $note_id, $now
+            $application_id, $kind, $note_id, $recipient, self::STATUS_PENDING, $now, $kind . ':' . $note_id, $now
         ) );
     }
 
@@ -285,6 +294,7 @@ class NotificationService {
             self::KIND_ACK   => __( 'Applicant acknowledgement', 'rotary-grants' ),
             self::KIND_STAFF => __( 'Staff: new application', 'rotary-grants' ),
             self::KIND_INFO  => __( 'Request for more information', 'rotary-grants' ),
+            self::KIND_DECISION => __( 'Decision notice', 'rotary-grants' ),
             default          => $kind,
         };
     }
@@ -323,6 +333,15 @@ class NotificationService {
             /* translators: 1: fund name, 2: reference */
             $subject  = sprintf( __( 'Your %1$s funding application — %2$s', 'rotary-grants' ), $vars['fund_name'], $vars['reference'] );
             $template = 'applicant-acknowledgement';
+        } elseif ( $row->kind === self::KIND_DECISION ) {
+            $note = ( new WorkflowService() )->find_note( (int) $row->related_id );
+            if ( ! $note || $note->sent_at === null ) {
+                return new \WP_Error( 'notice_missing' );
+            }
+            $vars['request'] = (string) $note->body;
+            /* translators: 1: fund name, 2: reference */
+            $subject  = sprintf( __( 'Your %1$s funding application %2$s — decision', 'rotary-grants' ), $vars['fund_name'], $vars['reference'] );
+            $template = 'decision-notice';
         } elseif ( $row->kind === self::KIND_INFO ) {
             $note = ( new WorkflowService() )->find_note( (int) $row->related_id );
             if ( ! $note || $note->sent_at === null ) {

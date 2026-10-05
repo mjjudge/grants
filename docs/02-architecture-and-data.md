@@ -108,9 +108,10 @@ Example: budget £10,000, awards £3,000, payments £1,000. Available to award i
 £7,000; outstanding is £2,000. A £200 reversal reduces net paid to £800 and
 increases outstanding to £2,200; it does not change the £3,000 approval.
 
-Over-budget approvals fail by default. An authorised override, if the committee
-wants one, requires a distinct capability and recorded reason; otherwise change
-the round budget with audit first. Serialise award decisions on the round row
+Over-budget approvals are refused by default with a warning; the decision
+maker may approve beyond the budget only by confirming and recording where the
+extra money comes from (project owner's decision — `backlog/DECISIONS.md`
+DEC-014). The amount over and that note are shown with round totals. Serialise award decisions on the round row
 so concurrent approvals cannot overcommit. Serialise payments on the award row
 and reject payments above remaining approved amounts.
 
