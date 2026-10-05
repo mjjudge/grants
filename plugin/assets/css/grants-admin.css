@@ -234,3 +234,9 @@
 .grants-admin .grants-ledger__reversal td {
     background: #fcf0f1;
 }
+
+.grants-admin .grants-warnings {
+    list-style: disc;
+    margin-left: 20px;
+    color: #996800;
+}

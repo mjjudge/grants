@@ -23,6 +23,15 @@ class SettingsService {
     public const NOTIFICATIONS_PAUSED    = 'notifications_paused';
     public const REPORTING_YEAR_START    = 'reporting_year_start_month';
 
+    /** Retention periods in months, per category (G11). Suggested defaults — each club confirms its own. */
+    public const RETENTION = [
+        'retention_unsuccessful_months'  => 24,
+        'retention_award_months'         => 84,
+        'retention_contact_months'       => 36,
+        'retention_notification_months'  => 12,
+    ];
+    public const RETENTION_CONFIRMED = 'retention_confirmed';
+
     /** Upper bound on staff notification recipients — a typo guard, not a policy. */
     public const MAX_RECIPIENTS = 20;
 
@@ -40,6 +49,11 @@ class SettingsService {
         self::NOTIFICATIONS_PAUSED    => '0',
         // 1 = calendar year; 7 = Rotary year (July–June); 4 = April–March…
         self::REPORTING_YEAR_START    => '1',
+        'retention_unsuccessful_months' => '24',
+        'retention_award_months'        => '84',
+        'retention_contact_months'      => '36',
+        'retention_notification_months' => '12',
+        self::RETENTION_CONFIRMED       => '0',
     ];
 
     /** @var array<string, string>|null Per-request cache of stored values. */
@@ -59,6 +73,14 @@ class SettingsService {
 
     public function reporting_year_start_month(): int {
         return max( 1, min( 12, (int) $this->get( self::REPORTING_YEAR_START ) ) );
+    }
+
+    public function retention_months( string $key ): int {
+        return max( 1, (int) $this->get( $key ) );
+    }
+
+    public function retention_confirmed(): bool {
+        return $this->get( self::RETENTION_CONFIRMED ) === '1';
     }
 
     public function notifications_paused(): bool {
@@ -182,6 +204,16 @@ class SettingsService {
             $month = '1';
         }
         $clean[ self::REPORTING_YEAR_START ] = $month;
+
+        foreach ( self::RETENTION as $key => $default ) {
+            $raw = trim( (string) ( $input[ $key ] ?? $default ) );
+            if ( ! preg_match( '/^\d{1,3}$/', $raw ) || (int) $raw < 1 || (int) $raw > 240 ) {
+                $errors->add( $key, __( 'Enter a number of months between 1 and 240.', 'rotary-grants' ) );
+                $raw = (string) $default;
+            }
+            $clean[ $key ] = (string) (int) $raw;
+        }
+        $clean[ self::RETENTION_CONFIRMED ] = ( $input[ self::RETENTION_CONFIRMED ] ?? '' ) === '1' ? '1' : '0';
 
         $clean[ self::NOTIFICATIONS_PAUSED ] = ( $input[ self::NOTIFICATIONS_PAUSED ] ?? '' ) === '1' ? '1' : '0';
 

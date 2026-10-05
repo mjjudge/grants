@@ -14,6 +14,7 @@
  *   $copied_from  object|null           Round whose fund name/wording prefilled an add form.
  *   $notice       string                'created', 'saved', 'status_<to>', 'error', or ''.
  *   $blockers     string[]              Reasons the round cannot be opened (draft/closed only).
+ *   $warnings     string[]              Non-blocking things to fix before opening (draft/closed only).
  *   $phase        string                RoundService::phase() for an existing round, else ''.
  *   $transitions  string[]              Statuses this round may move to.
  *   $read_only    bool                  True for archived rounds.
@@ -210,6 +211,12 @@ $notice_text = [
                     <?php foreach ( $blockers as $blocker ) : ?>
                         <li><?php echo esc_html( $blocker ); ?></li>
                     <?php endforeach; ?>
+                </ul>
+            <?php endif; ?>
+
+            <?php if ( $warnings ) : ?>
+                <ul class="grants-warnings">
+                    <?php foreach ( $warnings as $w ) : ?><li><?php echo esc_html( $w ); ?></li><?php endforeach; ?>
                 </ul>
             <?php endif; ?>
 

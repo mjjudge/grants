@@ -42,7 +42,11 @@ class SettingsPage {
             SettingsService::MAIL_FROM_ADDRESS       => $service->get( SettingsService::MAIL_FROM_ADDRESS ),
             SettingsService::NOTIFICATIONS_PAUSED    => $service->get( SettingsService::NOTIFICATIONS_PAUSED ),
             SettingsService::REPORTING_YEAR_START    => $service->get( SettingsService::REPORTING_YEAR_START ),
+            SettingsService::RETENTION_CONFIRMED     => $service->get( SettingsService::RETENTION_CONFIRMED ),
         ];
+        foreach ( array_keys( SettingsService::RETENTION ) as $rk ) {
+            $values[ $rk ] = $service->get( $rk );
+        }
         $site_name = wp_specialchars_decode( (string) get_bloginfo( 'name' ), ENT_QUOTES );
         $errors = [];
 
@@ -77,7 +81,11 @@ class SettingsPage {
             SettingsService::MAIL_FROM_ADDRESS       => sanitize_text_field( wp_unslash( $_POST['mail_from_address'] ?? '' ) ),
             SettingsService::NOTIFICATIONS_PAUSED    => ( $_POST['notifications_paused'] ?? '' ) === '1' ? '1' : '',
             SettingsService::REPORTING_YEAR_START    => (string) absint( $_POST['reporting_year_start_month'] ?? 1 ),
+            SettingsService::RETENTION_CONFIRMED     => ( $_POST['retention_confirmed'] ?? '' ) === '1' ? '1' : '',
         ];
+        foreach ( array_keys( SettingsService::RETENTION ) as $rk ) {
+            $input[ $rk ] = sanitize_text_field( wp_unslash( $_POST[ $rk ] ?? '' ) );
+        }
 
         $result = ( new SettingsService() )->save( $input );
 

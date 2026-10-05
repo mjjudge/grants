@@ -155,6 +155,19 @@ class RoundService {
         return $blockers;
     }
 
+    /**
+     * Things worth fixing before opening that do NOT block it.
+     *
+     * @return string[]
+     */
+    public function open_warnings(): array {
+        $warnings = [];
+        if ( ! ( new SettingsService() )->retention_confirmed() ) {
+            $warnings[] = __( 'Retention periods have not been confirmed in Settings (suggested periods are in use).', 'rotary-grants' );
+        }
+        return $warnings;
+    }
+
     // =========================================================================
     // Mutations
     // =========================================================================

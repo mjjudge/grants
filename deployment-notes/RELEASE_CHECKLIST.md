@@ -35,6 +35,10 @@ convention.
 - [ ] **Settings → Email sending:** From address `funds@rotaryinthevale.org`
       and From name `Rotary in the Vale` entered (the plugin's own defaults are
       generic since 0.10.0 — blank means WordPress's sender and the site name)
+- [ ] **Settings → Retention:** periods agreed with the trustees and
+      "Our trustees have agreed these retention periods" ticked; privacy
+      notice (Settings link) states the same periods; `grants_privacy`
+      given to the agreed person (Access screen)
 - [ ] **Settings → Reports:** reporting year start month as agreed with the
       treasurer (default January)
 - [ ] **Email (first release with G04, then whenever mail changes):**

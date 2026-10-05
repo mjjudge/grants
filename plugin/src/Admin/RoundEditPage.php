@@ -164,6 +164,7 @@ class RoundEditPage {
             ? $service->open_blockers( $round, true )
             : [];
         $phase         = $round ? $service->phase( $round ) : '';
+        $warnings      = $round && in_array( $round->status, [ RoundStatus::DRAFT, RoundStatus::CLOSED ], true ) ? $service->open_warnings() : [];
         $transitions   = $round ? RoundStatus::targets( $round->status ) : [];
         $read_only     = $round && $round->status === RoundStatus::ARCHIVED;
         $timezone      = wp_timezone_string();

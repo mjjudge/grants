@@ -470,9 +470,36 @@ this section.
 
 ## Section 11 — Privacy and retention (G11)
 
-- [ ] WordPress personal-data export/erase tools cover every relevant table
-- [ ] A retention dry run explains what would be removed/anonymised and what
-      financial evidence would be retained and why
+Use test data only. A user with `grants_privacy` runs these.
+
+- [ ] Settings → Retention shows 24 / 84 / 36 / 12 months and an unticked
+      "trustees have agreed" box; a draft round's "Before this round can open"
+      area shows a retention **warning** but the round can still open
+- [ ] Rotary Grants → Privacy & Retention: the dry run lists, per category,
+      which records would be anonymised and what is kept; nothing changes
+      until Apply (shorten a period in Settings to make test records due)
+- [ ] Apply → a declined/withdrawn application now shows "[removed]" for
+      contact details and free-text answers and committee notes, but keeps
+      reference, organisation, amounts and decision; an awarded application's
+      award and payments are unchanged; applications still under review are
+      untouched
+- [ ] A former contact is anonymised, including old values in its correction
+      history; its permission history (dates, evidence) remains
+- [ ] Tools → Export Personal Data for an applicant's email: after
+      confirming the request, the export includes their application(s),
+      contact record and permission history, and email log entries
+- [ ] Tools → Erase Personal Data for an applicant with an application still
+      under review: that application is kept with an explanatory message; for
+      a decided one, contact details are removed and the message says the
+      financial records are kept
+- [ ] Erasing an email used by contacts at two organisations shows the
+      "more than one organisation" message
+- [ ] Settings → Privacy → Policy Guide shows the "Grant applications"
+      suggested text
+- [ ] Deleting the plugin from the Plugins screen and reinstalling the same
+      version: all rounds, applications, awards and payments are still there
+- [ ] Users without `grants_privacy` (including decision makers and the
+      treasurer) are refused the Privacy & Retention screen and Apply (403)
 
 ## Section 12 — Pre-launch final checks (G12) **[SMOKE]**
 

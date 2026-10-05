@@ -19,6 +19,7 @@ class Installer {
         // Queued emails stay queued; only the cron trigger is removed (it is
         // re-created on the next page load after reactivation).
         \Rotary\Grants\Services\NotificationService::unschedule_cron();
+        \Rotary\Grants\Services\RetentionService::unschedule_cron();
         \Rotary\Grants\Audit\AuditLogger::record( 'plugin_deactivated', 'plugin', null, [ 'version' => GRANTS_VERSION ] );
     }
 }

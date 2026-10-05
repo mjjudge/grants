@@ -2,7 +2,7 @@
 
 **Owner:** Rotary in the Vale  
 **Repository:** not yet published  
-**Version:** 0.10.0 (G09 reports — see "Current status" below)  
+**Version:** 0.11.0 (G11 privacy — see "Current status" below)  
 **Requires:** WordPress 6.0+, PHP 8.2+ (provisional — see `docs/ARCHITECTURE.md`)  
 **Hosted on:** SiteGround shared hosting (same account as the sibling plugins below)
 
@@ -31,7 +31,7 @@ It shares no code, database table, or credential with any of them — see
 
 ## Current status
 
-**G01–G09 done — 0.10.0.** The plugin activates, creates its tables, grants
+**G01–G09 and G11 done — 0.11.0** (G10 deferred). The plugin activates, creates its tables, grants
 the `grants_*` capabilities to Administrator only (never Editor), and provides:
 
 - **Public application form** — put
@@ -68,14 +68,19 @@ the `grants_*` capabilities to Administrator only (never Editor), and provides:
   payments by date (reporting year set in Settings: calendar, Rotary year or
   accounting year), future-round contacts; formula-safe CSV exports, each
   behind its own capability and audited
+- **Privacy & retention** — retention periods in Settings (suggested,
+  confirmable), dry run then Apply, anonymise-not-delete (awards and payments
+  always kept), WordPress Export/Erase Personal Data covers the plugin;
+  uninstall keeps data (see `deployment-notes/UNINSTALL_AND_ERASE.md`)
 - **Organisations** — corrections with history, contacts over time,
   future-round email permissions with withdrawal, merging duplicates
 - **Funding Rounds** — create, edit, open, close, reopen and archive rounds
 - **Settings** — help email, staff notification recipients, privacy notice
 - **Access** (administrators) — who holds which capability
 
-No privacy tooling yet; historical import is deferred (no historical data —
-DEC-017). See `backlog/DECISIONS.md` DEC-007 to DEC-017.
+Historical import is deferred (no historical data — DEC-017). See
+`backlog/DECISIONS.md` DEC-007 to DEC-018. G12 (coexistence verification,
+release and staff guide) is next.
 
 ---
 
@@ -155,8 +160,8 @@ cycle is required on the live site to run it** — see `CLAUDE.md` and
    across the sibling plugins' release history.
 2. Read `docs/00-proposal.md` through `docs/08-source-notes.md` for the product
    brief, and `docs/grants-discovery.md` for the evidence it's grounded in.
-3. Read `backlog/BACKLOG.md` for the ordered task list (G00–G09 are done,
-   G10 is deferred; G11 is next) and `backlog/DECISIONS.md` for what's already been decided.
+3. Read `backlog/BACKLOG.md` for the ordered task list (G00–G09 and G11 are
+   done, G10 is deferred; G12 is next) and `backlog/DECISIONS.md` for what's already been decided.
 4. Confirm the still-open rows in `docs/07-decisions-and-launch.md` with the
    project owner before opening a live funding round — none of them are
    guessed, and none should be.
@@ -177,3 +182,4 @@ cycle is required on the live site to run it** — see `CLAUDE.md` and
 | 0.8.0 | G07 decisions and awards: `grants_decisions`, `grants_awards`, `grants_award_conditions`; approve/decline/defer with reasons, dates, revisions and reopening; budget reservation serialised on the round row; over-budget approvals only with confirmation and a funding note (shown in totals); conditions with evidence; decision notices drafted then sent; Awards screen; round budget can't be lowered below approvals. **Contains migrations — deactivate/reactivate required when upgrading.** |
 | 0.9.0 | G08 payment ledger: `grants_payments` (append-only payments and reversals, one-time command keys), treasurer Payments and award screens, pre-payment conditions enforced, payments capped at outstanding and serialised per award, reversals capped at the unreversed amount with refund recorded separately, derived progress; decisions can't go below what's paid. **Contains a migration — deactivate/reactivate required when upgrading.** |
 | 0.10.0 | G09 reports and exports: round overview, committee list (tallies hidden where you declared a conflict), awards & payments by round, payments by reporting year (new Settings → Reports start-month, default calendar year), future-round contacts (current, un-withdrawn opt-ins only); formula-safe typed CSV exports per capability, audited; organisation page shows awarded/paid. **Generic defaults:** email sender now defaults to the site name / WordPress sender — enter the club's sender in Settings. No migration. |
+| 0.11.0 | G11 privacy and retention: retention periods in Settings (suggested 24/84/36/12 months, trustee-confirmation box), Privacy & Retention screen with dry run and Apply (anonymise personal details and free text; awards, payments and decisions kept), WordPress personal-data exporter and eraser (open applications kept, shared addresses flagged), daily removal of expired submission keys, round-opening warning until periods confirmed, data-keeping `uninstall.php`, privacy-policy text. **Contains a migration — deactivate/reactivate required when upgrading.** |

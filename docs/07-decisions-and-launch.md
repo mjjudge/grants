@@ -24,7 +24,7 @@ guessed.
 | Future-round email | Separate optional unticked preference | Approved wording, withdrawal route, and responsible entity |
 | Bank details | Treasurer verifies outside WordPress | Existing verification/payment process |
 | Evidence | Declarations then staff verification outside form | Whether governing documents/accounts need later uploads |
-| Privacy | Approved notice with configurable retention categories | Controller, purposes/lawful bases, periods, and rights route |
+| Privacy | **Built (DEC-018):** retention periods in Settings with suggested values (24 / 84 / 36 / 12 months), dry run + Apply, WordPress export/erase tools, anonymise-not-delete | Controller, purposes/lawful bases, the privacy notice text, **confirming the periods** (tick in Settings), and who holds `grants_privacy` |
 | Access | Named accounts and custom capabilities, never auto-granted to Editor | Committee roles and decision authority |
 | Conflicts of interest | **Built (DEC-013):** declare before taking part; any declared conflict blocks reviewing/deciding and hides the discussion; no overrides — based on Rotary International's grants COI policy (TRF Code of Policies §30.040) and Charity Commission CC29 | The club has no COI policy of its own: the committee should **adopt one** (the built behaviour is a ready-made starting point) and record it in its minutes |
 | Rotarian / family eligibility | Not restricted | RI bars current Rotarians, their families, club employees and anyone who left Rotary in the last 3 years from benefiting from *Foundation* grants. Decide whether anything similar applies to the club's own funds — not built |

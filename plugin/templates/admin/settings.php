@@ -10,6 +10,7 @@
  *                                         'notifications_paused' ['1'|'0'],
  *                                         'reporting_year_start_month' ['1'..'12']).
  *   $site_name      string                The site's name (shown as the From-name fallback).
+ *   (also $values['retention_*_months'] and $values['retention_confirmed'] — G11)
  *                                         After a failed save, these are what was submitted.
  *   $errors         array<string,string>  Error messages keyed by setting key
  *                                         (or 'forbidden' / 'db_error').
@@ -181,6 +182,29 @@ $field_ids        = [
                     </select>
                     <p class="description"><?php esc_html_e( 'Used to group payments by the date they were made. January = calendar year; July = the Rotary year; or your charity\'s accounting year. Round-based reports are not affected.', 'rotary-grants' ); ?></p>
                 </td>
+            </tr>
+        </table>
+
+        <h2 id="grants-retention"><?php esc_html_e( 'Retention', 'rotary-grants' ); ?></h2>
+        <p class="description"><?php esc_html_e( 'How long personal details are kept before they are anonymised (awards and payments are always kept as financial records). The figures below are suggestions based on common UK charity practice — agree them with your trustees. Nothing is removed until someone presses Apply on the Privacy & retention screen.', 'rotary-grants' ); ?></p>
+        <table class="form-table" role="presentation">
+            <?php foreach ( [
+                'retention_unsuccessful_months' => __( 'Applications without an award — after the decision', 'rotary-grants' ),
+                'retention_award_months'        => __( 'Applications with an award — after the last payment', 'rotary-grants' ),
+                'retention_contact_months'      => __( 'Former contacts — after they stop being the contact', 'rotary-grants' ),
+                'retention_notification_months' => __( 'Email log recipients — after sending', 'rotary-grants' ),
+            ] as $rk => $rlabel ) : $rerr = $errors[ $rk ] ?? ''; ?>
+                <tr>
+                    <th scope="row"><label for="grants-<?php echo esc_attr( $rk ); ?>"><?php echo esc_html( $rlabel ); ?></label></th>
+                    <td>
+                        <input type="number" min="1" max="240" class="small-text" id="grants-<?php echo esc_attr( $rk ); ?>" name="<?php echo esc_attr( $rk ); ?>" value="<?php echo esc_attr( (string) ( $values[ $rk ] ?? '' ) ); ?>"<?php echo $rerr ? ' aria-invalid="true"' : ''; ?>> <?php esc_html_e( 'months', 'rotary-grants' ); ?>
+                        <?php if ( $rerr ) : ?><p class="grants-field-error"><?php echo esc_html( $rerr ); ?></p><?php endif; ?>
+                    </td>
+                </tr>
+            <?php endforeach; ?>
+            <tr>
+                <th scope="row"><?php esc_html_e( 'Confirmed', 'rotary-grants' ); ?></th>
+                <td><label><input type="checkbox" name="retention_confirmed" value="1" <?php checked( ( $values['retention_confirmed'] ?? '0' ) === '1' ); ?>> <?php esc_html_e( 'Our trustees have agreed these retention periods', 'rotary-grants' ); ?></label></td>
             </tr>
         </table>
 

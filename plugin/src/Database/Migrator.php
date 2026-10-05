@@ -60,6 +60,9 @@ class Migrator {
         '0.9.0' => [
             Migrations\CreatePaymentsTable::class,
         ],
+        '0.11.0' => [
+            Migrations\AddAnonymisedColumns::class,
+        ],
     ];
 
     public function run(): void {
