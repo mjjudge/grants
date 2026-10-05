@@ -64,7 +64,10 @@ class CommitteeActions {
         if ( $errors ) {
             set_transient( self::error_key(), $errors, 300 );
         }
-        wp_safe_redirect( add_query_arg( [ 'page' => 'grants-declarations', 'round_id' => $round, 'grants_notice' => $errors ? 'partial' : 'declared' ], admin_url( 'admin.php' ) ) );
+        $portal = self::portal_url();
+        wp_safe_redirect( $portal
+            ? add_query_arg( [ 'view' => 'declare', 'round' => $round, 'grants_notice' => $errors ? 'partial' : 'declared' ], $portal )
+            : add_query_arg( [ 'page' => 'grants-declarations', 'round_id' => $round, 'grants_notice' => $errors ? 'partial' : 'declared' ], admin_url( 'admin.php' ) ) );
         exit;
     }
 
@@ -199,15 +202,28 @@ class CommitteeActions {
     }
 
     private function finish( int $application_id, mixed $result, string $notice ): never {
-        $args = [ 'page' => 'grants-applications', 'action' => 'view', 'id' => $application_id ];
         if ( is_wp_error( $result ) ) {
             set_transient( self::error_key(), implode( ' ', $result->get_error_messages() ), 300 );
-            $args['grants_notice'] = 'error';
-        } else {
-            $args['grants_notice'] = $notice;
+            $notice = 'error';
         }
-        wp_safe_redirect( add_query_arg( $args, admin_url( 'admin.php' ) ) . '#grants-committee' );
+        $portal = self::portal_url();
+        $url    = $portal
+            ? add_query_arg( [ 'view' => 'application', 'id' => $application_id, 'grants_notice' => $notice ], $portal )
+            : add_query_arg( [ 'page' => 'grants-applications', 'action' => 'view', 'id' => $application_id, 'grants_notice' => $notice ], admin_url( 'admin.php' ) );
+        wp_safe_redirect( $url . '#grants-committee' );
         exit;
+    }
+
+    /**
+     * The committee page URL when the form was posted from it (hidden
+     * grants_return=portal). The URL itself always comes from Settings,
+     * never from the request, so this can't be used as an open redirect.
+     */
+    private static function portal_url(): string {
+        if ( ( $_POST['grants_return'] ?? '' ) !== 'portal' ) {
+            return '';
+        }
+        return \Rotary\Grants\Public\CommitteePortal::url();
     }
 
     /** Error message (string) or per-application errors (array) from the last action. */

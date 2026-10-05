@@ -14,6 +14,7 @@ class Plugin {
         );
 
         ( new \Rotary\Grants\Public\ApplicationFormHandler() )->register();
+        ( new \Rotary\Grants\Public\CommitteePortal() )->register();
         \Rotary\Grants\Services\NotificationService::register_cron();
         \Rotary\Grants\Services\RetentionService::register_cron();
         ( new \Rotary\Grants\Services\PrivacyService() )->register();

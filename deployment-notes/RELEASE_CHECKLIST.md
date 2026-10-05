@@ -35,6 +35,10 @@ convention.
 - [ ] **Settings → Email sending:** From address `funds@rotaryinthevale.org`
       and From name `Rotary in the Vale` entered (the plugin's own defaults are
       generic since 0.10.0 — blank means WordPress's sender and the site name)
+- [ ] **Committee page:** a page containing `[rotary_grants_committee]`
+      exists (e.g. `/committee/`), is chosen in Settings → Committee page, is
+      in the cache exclusions, and a reviewer test account lands on it after
+      signing in. Consider a two-factor sign-in plugin for committee accounts
 - [ ] **Settings → Retention:** periods agreed with the trustees and
       "Our trustees have agreed these retention periods" ticked; privacy
       notice (Settings link) states the same periods; `grants_privacy`

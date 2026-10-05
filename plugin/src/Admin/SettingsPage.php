@@ -43,6 +43,7 @@ class SettingsPage {
             SettingsService::NOTIFICATIONS_PAUSED    => $service->get( SettingsService::NOTIFICATIONS_PAUSED ),
             SettingsService::REPORTING_YEAR_START    => $service->get( SettingsService::REPORTING_YEAR_START ),
             SettingsService::RETENTION_CONFIRMED     => $service->get( SettingsService::RETENTION_CONFIRMED ),
+            SettingsService::COMMITTEE_PAGE_ID       => $service->get( SettingsService::COMMITTEE_PAGE_ID ),
         ];
         foreach ( array_keys( SettingsService::RETENTION ) as $rk ) {
             $values[ $rk ] = $service->get( $rk );
@@ -82,6 +83,7 @@ class SettingsPage {
             SettingsService::NOTIFICATIONS_PAUSED    => ( $_POST['notifications_paused'] ?? '' ) === '1' ? '1' : '',
             SettingsService::REPORTING_YEAR_START    => (string) absint( $_POST['reporting_year_start_month'] ?? 1 ),
             SettingsService::RETENTION_CONFIRMED     => ( $_POST['retention_confirmed'] ?? '' ) === '1' ? '1' : '',
+            SettingsService::COMMITTEE_PAGE_ID       => (string) absint( $_POST['committee_page_id'] ?? 0 ),
         ];
         foreach ( array_keys( SettingsService::RETENTION ) as $rk ) {
             $input[ $rk ] = sanitize_text_field( wp_unslash( $_POST[ $rk ] ?? '' ) );

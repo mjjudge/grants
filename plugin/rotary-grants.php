@@ -2,7 +2,7 @@
 /**
  * Plugin Name: Rotary Grants
  * Description: Grant application, decision, and payment record-keeping for Rotary in the Vale funding rounds — not tied to any single campaign (Tree of Light or otherwise).
- * Version:     0.11.0
+ * Version:     0.12.0
  * Requires at least: 6.0
  * Requires PHP: 8.2
  * Author:      Rotary in the Vale
@@ -13,7 +13,7 @@
 
 defined( 'ABSPATH' ) || exit;
 
-define( 'GRANTS_VERSION',     '0.11.0' );
+define( 'GRANTS_VERSION',     '0.12.0' );
 define( 'GRANTS_PLUGIN_FILE', __FILE__ );
 define( 'GRANTS_PLUGIN_DIR',  plugin_dir_path( __FILE__ ) );
 define( 'GRANTS_PLUGIN_URL',  plugin_dir_url( __FILE__ ) );

@@ -501,6 +501,38 @@ Use test data only. A user with `grants_privacy` runs these.
 - [ ] Users without `grants_privacy` (including decision makers and the
       treasurer) are refused the Privacy & Retention screen and Apply (403)
 
+## Section 11a — Committee page on the website (G11a) **[SMOKE]**
+
+Setup: a page containing `[rotary_grants_committee]` chosen in Settings →
+Committee page; accounts: a reviewer (only `grants_review`), a decision maker
+(only `grants_decide`), a coordinator, and a user with no grants access.
+
+- [ ] Signed out, the page shows only a sign-in form (and "forgotten your
+      password"); a direct link to an application shows nothing more
+- [ ] The reviewer signs in via the page **and** via the normal WordPress
+      login — both land on the committee page; there is no admin bar
+- [ ] The reviewer typing `/wp-admin/` is sent to the committee page; "Password"
+      on the page opens their profile, where they can change it
+- [ ] Home shows each open/closed round with "N need your declaration" and
+      "reviewed by you"; a round shows its applications with Declare / To review
+      / Reviewed / Conflict tags
+- [ ] Declare for the whole round on one screen; a declared conflict shows as
+      recorded and can't be changed back
+- [ ] On an application: answers and the organisation's previous applications
+      are readable before declaring; after declaring "no conflict", reviews,
+      notes and the review form appear; saving a review and adding a note
+      return to the page with a confirmation
+- [ ] A member with a declared conflict sees neither reviews nor notes
+- [ ] The decision maker sees the budget line and the decision form; an
+      over-budget approval shows the warning with what was typed kept;
+      confirming with a funding note records it; reopening works
+- [ ] The coordinator is **not** redirected from WordPress admin and sees a
+      "Back office" link on the page
+- [ ] A signed-in user with no grants access sees "does not have access"
+- [ ] On a phone: the page is readable, tables scroll sideways, forms usable
+- [ ] View source / response headers: `Cache-Control: no-cache…` and
+      `X-Robots-Tag: noindex`
+
 ## Section 12 — Pre-launch final checks (G12) **[SMOKE]**
 
 - [ ] Full acceptance-test pass against `docs/06-acceptance-tests.md`

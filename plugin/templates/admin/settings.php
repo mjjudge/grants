@@ -10,7 +10,8 @@
  *                                         'notifications_paused' ['1'|'0'],
  *                                         'reporting_year_start_month' ['1'..'12']).
  *   $site_name      string                The site's name (shown as the From-name fallback).
- *   (also $values['retention_*_months'] and $values['retention_confirmed'] — G11)
+ *   (also $values['retention_*_months'] and $values['retention_confirmed'] — G11,
+ *    and $values['committee_page_id'] — G11a)
  *                                         After a failed save, these are what was submitted.
  *   $errors         array<string,string>  Error messages keyed by setting key
  *                                         (or 'forbidden' / 'db_error').
@@ -181,6 +182,24 @@ $field_ids        = [
                         <?php endfor; ?>
                     </select>
                     <p class="description"><?php esc_html_e( 'Used to group payments by the date they were made. January = calendar year; July = the Rotary year; or your charity\'s accounting year. Round-based reports are not affected.', 'rotary-grants' ); ?></p>
+                </td>
+            </tr>
+        </table>
+
+        <h2 id="grants-committee-page"><?php esc_html_e( 'Committee page', 'rotary-grants' ); ?></h2>
+        <table class="form-table" role="presentation">
+            <tr>
+                <th scope="row"><label for="grants-committee-page-id"><?php esc_html_e( 'Committee page', 'rotary-grants' ); ?></label></th>
+                <td>
+                    <?php wp_dropdown_pages( [
+                        'name'              => 'committee_page_id',
+                        'id'                => 'grants-committee-page-id',
+                        'selected'          => (int) ( $values['committee_page_id'] ?? 0 ),
+                        'show_option_none'  => __( '— not set —', 'rotary-grants' ),
+                        'option_none_value' => '0',
+                        'post_status'       => [ 'publish', 'private' ],
+                    ] ); ?>
+                    <p class="description"><?php esc_html_e( 'The page where reviewers and decision makers sign in and work, outside WordPress admin. Put [rotary_grants_committee] on that page, then choose it here. Leave it out of your site\'s menus if you prefer; it shows only a sign-in form to visitors.', 'rotary-grants' ); ?></p>
                 </td>
             </tr>
         </table>

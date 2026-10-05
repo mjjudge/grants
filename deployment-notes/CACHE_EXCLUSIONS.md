@@ -43,7 +43,13 @@ Exclude URLs** (and in any caching plugin/CDN in front of the site):
 - [ ] any URL with the query parameter **`grants_submitted`** (the receipt
       view — personal to the visitor, session-bound), and
 - [ ] any request carrying the cookie **`grants_form_session`** if the cache
-      supports cookie-based bypass.
+      supports cookie-based bypass, and
+- [ ] the **committee page** (the page holding `[rotary_grants_committee]`,
+      chosen in Settings → Committee page). It shows confidential committee
+      material to signed-in users; the plugin sends no-cache headers,
+      `DONOTCACHEPAGE` and `X-Robots-Tag: noindex`, but exclude it explicitly
+      too. Logged-in requests are normally bypassed by SiteGround's dynamic
+      cache — confirm that as well.
 
 POST requests are never cached by SiteGround's dynamic cache, so the form
 submission itself needs no rule.

@@ -31,6 +31,7 @@ class SettingsService {
         'retention_notification_months'  => 12,
     ];
     public const RETENTION_CONFIRMED = 'retention_confirmed';
+    public const COMMITTEE_PAGE_ID   = 'committee_page_id';
 
     /** Upper bound on staff notification recipients — a typo guard, not a policy. */
     public const MAX_RECIPIENTS = 20;
@@ -54,6 +55,7 @@ class SettingsService {
         'retention_contact_months'      => '36',
         'retention_notification_months' => '12',
         self::RETENTION_CONFIRMED       => '0',
+        self::COMMITTEE_PAGE_ID         => '0',
     ];
 
     /** @var array<string, string>|null Per-request cache of stored values. */
@@ -214,6 +216,13 @@ class SettingsService {
             $clean[ $key ] = (string) (int) $raw;
         }
         $clean[ self::RETENTION_CONFIRMED ] = ( $input[ self::RETENTION_CONFIRMED ] ?? '' ) === '1' ? '1' : '0';
+
+        $page_id = (int) ( $input[ self::COMMITTEE_PAGE_ID ] ?? 0 );
+        if ( $page_id && get_post_type( $page_id ) !== 'page' ) {
+            $errors->add( self::COMMITTEE_PAGE_ID, __( 'Choose a page.', 'rotary-grants' ) );
+            $page_id = 0;
+        }
+        $clean[ self::COMMITTEE_PAGE_ID ] = (string) $page_id;
 
         $clean[ self::NOTIFICATIONS_PAUSED ] = ( $input[ self::NOTIFICATIONS_PAUSED ] ?? '' ) === '1' ? '1' : '0';
 

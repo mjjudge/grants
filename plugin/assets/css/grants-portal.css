@@ -1,0 +1,46 @@
+/* Rotary Grants — committee page on the website. Scoped to .grants-portal so the theme is untouched. */
+
+.grants-portal { max-width: 60rem; }
+.grants-portal * { box-sizing: border-box; }
+.grants-portal__bar { display: flex; flex-wrap: wrap; justify-content: space-between; gap: .5rem; padding: .5rem 0 1rem; border-bottom: 1px solid #dcdcde; margin-bottom: 1rem; font-size: .95em; }
+.grants-portal__muted { color: #50575e; font-size: .95em; }
+.grants-portal__dim { opacity: .65; }
+.grants-portal__warn { color: #b32d2e; }
+.grants-portal__attention a { color: #996800; font-weight: 600; }
+.grants-portal__notice { border-left: 4px solid #00a32a; background: #edfaef; padding: .6rem 1rem; }
+.grants-portal__error { border-left: 4px solid #b32d2e; background: #fcf0f1; padding: .6rem 1rem; }
+.grants-portal__warning { border: 2px solid #dba617; background: #fcf9e8; padding: .75rem 1rem; margin: 0 0 1rem; }
+.grants-portal__cards { display: grid; grid-template-columns: repeat(auto-fill, minmax(16rem, 1fr)); gap: 1rem; }
+.grants-portal__card, .grants-portal__section { border: 1px solid #dcdcde; border-radius: 6px; padding: 1rem 1.25rem; margin-bottom: 1rem; background: #fff; }
+.grants-portal__card h3 { margin-top: 0; }
+.grants-portal__table-wrap { overflow-x: auto; }
+.grants-portal__table { width: 100%; border-collapse: collapse; }
+.grants-portal__table th, .grants-portal__table td { padding: .5rem; border-bottom: 1px solid #eee; text-align: left; vertical-align: top; }
+.grants-portal__table .num { text-align: right; white-space: nowrap; }
+.grants-portal__tag { display: inline-block; padding: 0 .5rem; border-radius: 3px; font-size: .85em; }
+.grants-portal__tag--todo { background: #fcf9e8; color: #996800; }
+.grants-portal__tag--done { background: #edfaef; color: #007017; }
+.grants-portal__tag--conflict { background: #fcf0f1; color: #b32d2e; }
+.grants-portal__button { display: inline-block; padding: .5rem 1rem; border: 1px solid #2271b1; border-radius: 4px; background: #fff; color: #2271b1; cursor: pointer; text-decoration: none; font-size: 1rem; }
+.grants-portal__button--primary { background: #2271b1; color: #fff; }
+.grants-portal__field { display: block; margin: .75rem 0; font-weight: 600; }
+.grants-portal__field input, .grants-portal__field textarea, .grants-portal__field select { display: block; width: 100%; margin-top: .25rem; padding: .5rem; font-weight: normal; font-size: 1rem; }
+.grants-portal__choice { display: block; margin: .25rem 0; }
+.grants-portal__check { display: grid; grid-template-columns: 1fr; gap: .25rem; padding: .5rem 0; border-bottom: 1px solid #f0f0f1; }
+@media (min-width: 40rem) { .grants-portal__check { grid-template-columns: 2fr 9rem 3fr; align-items: center; } }
+.grants-portal__declare { border: 1px solid #dcdcde; border-radius: 6px; padding: .75rem 1rem; margin-bottom: .75rem; }
+.grants-portal__declare-box { border-color: #dba617; background: #fffdf5; }
+.grants-portal__declare-box.is-clear { border-color: #dcdcde; background: #fff; }
+.grants-portal__review { border-left: 3px solid #c3c4c7; padding-left: .75rem; margin-bottom: 1rem; }
+.grants-portal__finding--not_met { color: #b32d2e; }
+.grants-portal__finding--unsure { color: #996800; }
+.grants-portal__timeline { list-style: none; margin: 0 0 1rem; padding: 0; }
+.grants-portal__timeline li { border-left: 3px solid #c3c4c7; padding: .25rem .75rem; margin-bottom: .5rem; }
+.grants-portal__note--status { font-size: .9em; color: #50575e; }
+.grants-portal__note--addendum { border-left-color: #00a32a !important; }
+.grants-portal__note--info_request { border-left-color: #2271b1 !important; }
+.grants-portal__over { border: 1px dashed #c3c4c7; padding: .5rem 1rem; margin: 1rem 0; }
+.grants-portal__over.is-active { border: 2px solid #dba617; background: #fcf9e8; }
+.grants-portal__answers dt { font-weight: 600; margin-top: .75rem; }
+.grants-portal__answers dd { margin: .25rem 0 0; }
+.grants-portal .screen-reader-text { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(1px, 1px, 1px, 1px); }

@@ -2,7 +2,7 @@
 
 **Owner:** Rotary in the Vale  
 **Repository:** not yet published  
-**Version:** 0.11.0 (G11 privacy — see "Current status" below)  
+**Version:** 0.12.0 (G11a committee page — see "Current status" below)  
 **Requires:** WordPress 6.0+, PHP 8.2+ (provisional — see `docs/ARCHITECTURE.md`)  
 **Hosted on:** SiteGround shared hosting (same account as the sibling plugins below)
 
@@ -31,7 +31,7 @@ It shares no code, database table, or credential with any of them — see
 
 ## Current status
 
-**G01–G09 and G11 done — 0.11.0** (G10 deferred). The plugin activates, creates its tables, grants
+**G01–G09, G11 and G11a done — 0.12.0** (G10 deferred). The plugin activates, creates its tables, grants
 the `grants_*` capabilities to Administrator only (never Editor), and provides:
 
 - **Public application form** — put
@@ -48,6 +48,10 @@ the `grants_*` capabilities to Administrator only (never Editor), and provides:
   each one to an **organisation** from suggested matches (never automatic),
   and can **enter paper/email/phone applications** (labelled, late ones
   flagged with a reason)
+- **Committee page on the website** — `[rotary_grants_committee]` on a page
+  set in Settings: reviewers and decision makers sign in there (not WordPress
+  admin) to declare conflicts, review, add notes and record decisions; same
+  rules as admin; review-only users are kept out of WordPress admin
 - **Committee review** — conflict-of-interest declarations before taking part
   (any conflict blocks reviewing/deciding and hides the discussion), reviews
   with eligibility findings and recommendations, internal notes, requests for
@@ -79,8 +83,8 @@ the `grants_*` capabilities to Administrator only (never Editor), and provides:
 - **Access** (administrators) — who holds which capability
 
 Historical import is deferred (no historical data — DEC-017). See
-`backlog/DECISIONS.md` DEC-007 to DEC-018. G12 (coexistence verification,
-release and staff guide) is next.
+`backlog/DECISIONS.md` DEC-007 to DEC-019. G12 (release and staff guide) is
+next.
 
 ---
 
@@ -183,3 +187,4 @@ cycle is required on the live site to run it** — see `CLAUDE.md` and
 | 0.9.0 | G08 payment ledger: `grants_payments` (append-only payments and reversals, one-time command keys), treasurer Payments and award screens, pre-payment conditions enforced, payments capped at outstanding and serialised per award, reversals capped at the unreversed amount with refund recorded separately, derived progress; decisions can't go below what's paid. **Contains a migration — deactivate/reactivate required when upgrading.** |
 | 0.10.0 | G09 reports and exports: round overview, committee list (tallies hidden where you declared a conflict), awards & payments by round, payments by reporting year (new Settings → Reports start-month, default calendar year), future-round contacts (current, un-withdrawn opt-ins only); formula-safe typed CSV exports per capability, audited; organisation page shows awarded/paid. **Generic defaults:** email sender now defaults to the site name / WordPress sender — enter the club's sender in Settings. No migration. |
 | 0.11.0 | G11 privacy and retention: retention periods in Settings (suggested 24/84/36/12 months, trustee-confirmation box), Privacy & Retention screen with dry run and Apply (anonymise personal details and free text; awards, payments and decisions kept), WordPress personal-data exporter and eraser (open applications kept, shared addresses flagged), daily removal of expired submission keys, round-opening warning until periods confirmed, data-keeping `uninstall.php`, privacy-policy text. **Contains a migration — deactivate/reactivate required when upgrading.** |
+| 0.12.0 | G11a committee page: `[rotary_grants_committee]` website page (chosen in Settings) where reviewers and decision makers sign in, see their rounds and what needs attention, declare conflicts (singly or per round), review, add notes and record decisions (incl. over-budget confirmation and funding note, conditions, reopen); posts through the same handlers and services as admin; review-only users redirected from WordPress admin (profile excepted) with no admin bar; page never cached or indexed. No migration. |
