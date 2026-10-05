@@ -81,6 +81,13 @@ class OrganisationPage {
             $preferences[ (int) $c->id ] = [ 'current' => $prefs->current( (int) $c->id ), 'history' => $prefs->history( (int) $c->id ) ];
         }
         $applications = ( new ApplicationService() )->list( null, null, $organisation->id );
+        $award_info   = [];
+        foreach ( $applications as $a ) {
+            $aw = ( new \Rotary\Grants\Services\AwardService() )->for_application( $a->id );
+            if ( $aw ) {
+                $award_info[ $a->id ] = [ 'award' => $aw, 'paid' => ( new \Rotary\Grants\Services\PaymentService() )->net_paid( $aw->id ) ];
+            }
+        }
         $amendments   = AmendmentLog::for_entity( 'organisation', $organisation->id );
         $merge_q      = sanitize_text_field( wp_unslash( $_GET['merge_q'] ?? '' ) );
         $merge_hits   = $merge_q !== '' ? array_filter( $orgs->search( $merge_q, 20 ), static fn( $o ) => $o->id !== $organisation->id ) : [];

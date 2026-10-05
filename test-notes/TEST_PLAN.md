@@ -428,12 +428,36 @@ Setup: a round with a £10,000 budget; an approved £3,000 award with one
 
 ## Section 9 — Reports and exports (G09)
 
-- [ ] Round overview, organisation history, committee shortlist, treasurer
-      report, and future-round contact list all reconcile against a known
-      fixture
-- [ ] CSV exports escape spreadsheet-leading formula characters
-      (`=`, `+`, `-`, `@`, leading tab/whitespace)
-- [ ] A withdrawn contact preference is excluded from the future-round export
+Use a round with a few awards, payments (including one reversal and one
+payment dated in the next calendar year), reviews, and contacts with
+different permission states.
+
+- [ ] Reports → Round overview: counts by status, requested total, approved,
+      available (or "over budget by" with funding notes), net paid and
+      outstanding match the Awards and Payments screens
+- [ ] Awards & payments by round: totals match a hand calculation (approved −
+      net paid = outstanding); an award with several payments is counted once
+- [ ] Payments by date: a payment made in January for last year's round
+      appears under this year here, and still under last year's round in the
+      round report
+- [ ] Settings → Reports → July: the payment-date report switches to
+      "2026–27" style years covering July–June
+- [ ] Committee list: as a member with a declared conflict on one
+      application, its recommendation counts show "hidden"
+- [ ] Future-round contacts: includes current contacts with permission;
+      excludes withdrawn, former contacts and contacts who never opted in; a
+      contact who withdrew and later opted in again is included
+- [ ] Download each CSV and open in Excel/LibreOffice: an organisation named
+      `=HYPERLINK("http://x","click")` or `@SUM(1+1)` shows as plain text (not a
+      formula or link); amounts are numbers, reversals negative; £ and accents
+      display correctly
+- [ ] A user without the matching export capability gets no download button
+      and a direct export request is refused (403); the treasurer can't export
+      contacts
+- [ ] `<prefix>grants_audit_events` has an `export_downloaded` row per download
+      with type and row count only
+- [ ] Settings → Email sending left blank sends from the site name and
+      WordPress's sender; with the club's address entered, from that
 
 ## Section 10 — Historical import (G10)
 

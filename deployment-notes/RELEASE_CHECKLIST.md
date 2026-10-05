@@ -32,6 +32,11 @@ convention.
 - [ ] Upload/install the new version
 - [ ] If a migration shipped: deactivate, reactivate, confirm it ran
 - [ ] Confirm the admin menu and Settings screen load without errors
+- [ ] **Settings → Email sending:** From address `funds@rotaryinthevale.org`
+      and From name `Rotary in the Vale` entered (the plugin's own defaults are
+      generic since 0.10.0 — blank means WordPress's sender and the site name)
+- [ ] **Settings → Reports:** reporting year start month as agreed with the
+      treasurer (default January)
 - [ ] **Email (first release with G04, then whenever mail changes):**
       `funds@rotaryinthevale.org` exists as a mailbox or alias and is covered
       by SPF/DKIM in SiteGround Site Tools → Email → Authentication; send one

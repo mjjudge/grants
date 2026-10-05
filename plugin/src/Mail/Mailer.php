@@ -32,8 +32,8 @@ class Mailer {
             return new \WP_Error( 'empty_message' );
         }
 
-        $from_address = $settings->get( SettingsService::MAIL_FROM_ADDRESS );
-        $from_name    = $settings->get( SettingsService::MAIL_FROM_NAME );
+        $from_address = $settings->get( SettingsService::MAIL_FROM_ADDRESS ); // '' = WordPress's normal sender
+        $from_name    = $settings->mail_from_name();
         $reply_to     = $settings->help_email();
 
         $headers = [ 'Content-Type: text/plain; charset=UTF-8' ];
@@ -49,7 +49,9 @@ class Mailer {
             $error_code = (string) ( $e->get_error_code() ?: 'wp_mail_failed' );
         };
 
-        add_filter( 'wp_mail_from', $from_filter, 99 );
+        if ( $from_address !== '' ) {
+            add_filter( 'wp_mail_from', $from_filter, 99 );
+        }
         add_filter( 'wp_mail_from_name', $name_filter, 99 );
         add_action( 'wp_mail_failed', $on_failure );
         try {

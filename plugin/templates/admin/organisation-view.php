@@ -8,6 +8,7 @@
  *   $contacts     object[]             Contacts, current first.
  *   $preferences  array<int, array{current: object|null, history: object[]}>  Per contact id.
  *   $applications object[]             Linked applications (ApplicationService::list rows).
+ *   $award_info   array<int, array{award: object, paid: int}>  Application id => its award and net paid.
  *   $amendments   object[]             Corrections to this organisation (->changes decoded).
  *   $merge_q      string               Merge search text.
  *   $merge_hits   object[]             Organisations matching the merge search.
@@ -192,11 +193,13 @@ $notices = [
             <th scope="col"><?php esc_html_e( 'Round', 'rotary-grants' ); ?></th>
             <th scope="col" class="num"><?php esc_html_e( 'Requested', 'rotary-grants' ); ?></th>
             <th scope="col"><?php esc_html_e( 'Status', 'rotary-grants' ); ?></th>
+            <th scope="col" class="num"><?php esc_html_e( 'Awarded', 'rotary-grants' ); ?></th>
+            <th scope="col" class="num"><?php esc_html_e( 'Paid', 'rotary-grants' ); ?></th>
             <th scope="col"><?php esc_html_e( 'Received', 'rotary-grants' ); ?></th>
         </tr></thead>
         <tbody>
             <?php if ( ! $applications ) : ?>
-                <tr><td colspan="5"><?php esc_html_e( 'No applications linked.', 'rotary-grants' ); ?></td></tr>
+                <tr><td colspan="7"><?php esc_html_e( 'No applications linked.', 'rotary-grants' ); ?></td></tr>
             <?php endif; ?>
             <?php foreach ( $applications as $a ) : ?>
                 <tr>
@@ -205,6 +208,9 @@ $notices = [
                     <td><?php echo esc_html( $a->fund_name . ' — ' . $a->round_label ); ?></td>
                     <td class="num"><?php echo esc_html( $a->requested_pence === null ? '—' : Money::format_gbp( $a->requested_pence ) ); ?></td>
                     <td><?php echo esc_html( ApplicationStatus::label( $a->status ) ); ?></td>
+                    <?php $ai = $award_info[ $a->id ] ?? null; ?>
+                    <td class="num"><?php echo esc_html( $ai ? ( $ai['award']->status === 'approved' ? ( $ai['award']->approved_pence === null ? __( 'unknown', 'rotary-grants' ) : Money::format_gbp( $ai['award']->approved_pence ) ) : __( 'cancelled', 'rotary-grants' ) ) : '—' ); ?></td>
+                    <td class="num"><?php echo esc_html( $ai && $ai['paid'] ? Money::format_gbp( $ai['paid'] ) : '—' ); ?></td>
                     <td><?php echo esc_html( SiteTime::display( $a->submitted_at ) ?: '—' ); ?></td>
                 </tr>
             <?php endforeach; ?>

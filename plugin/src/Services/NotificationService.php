@@ -325,7 +325,7 @@ class NotificationService {
             'received'      => SiteTime::display( $app->submitted_at ),
             'contact_name'  => (string) ( $snapshot['answers']['contact_name'] ?? '' ),
             'help_email'    => $settings->help_email(),
-            'from_name'     => $settings->get( SettingsService::MAIL_FROM_NAME ),
+            'from_name'     => $settings->mail_from_name(),
             'admin_url'     => add_query_arg( [ 'page' => 'grants-applications', 'action' => 'view', 'id' => $app->id ], admin_url( 'admin.php' ) ),
         ];
 

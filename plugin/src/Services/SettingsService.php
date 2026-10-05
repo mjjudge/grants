@@ -21,6 +21,7 @@ class SettingsService {
     public const MAIL_FROM_NAME          = 'mail_from_name';
     public const MAIL_FROM_ADDRESS       = 'mail_from_address';
     public const NOTIFICATIONS_PAUSED    = 'notifications_paused';
+    public const REPORTING_YEAR_START    = 'reporting_year_start_month';
 
     /** Upper bound on staff notification recipients — a typo guard, not a policy. */
     public const MAX_RECIPIENTS = 20;
@@ -31,10 +32,14 @@ class SettingsService {
         self::NOTIFICATION_RECIPIENTS => '',
         self::PRIVACY_NOTICE_URL      => '',
         self::PRIVACY_NOTICE_VERSION  => '',
-        // Sender identity confirmed by the project owner at G04.
-        self::MAIL_FROM_NAME          => 'Rotary in the Vale',
-        self::MAIL_FROM_ADDRESS       => 'funds@rotaryinthevale.org',
+        // Blank = fall back to the site's name / WordPress's own sender, so a
+        // fresh install for any club works. Each club sets its own (Rotary in
+        // the Vale: funds@rotaryinthevale.org — DEC-011).
+        self::MAIL_FROM_NAME          => '',
+        self::MAIL_FROM_ADDRESS       => '',
         self::NOTIFICATIONS_PAUSED    => '0',
+        // 1 = calendar year; 7 = Rotary year (July–June); 4 = April–March…
+        self::REPORTING_YEAR_START    => '1',
     ];
 
     /** @var array<string, string>|null Per-request cache of stored values. */
@@ -45,6 +50,15 @@ class SettingsService {
             return '';
         }
         return $this->load()[ $key ] ?? self::DEFAULTS[ $key ];
+    }
+
+    /** Sender name actually used: the setting, or the site's name. */
+    public function mail_from_name(): string {
+        return $this->get( self::MAIL_FROM_NAME ) ?: wp_specialchars_decode( (string) get_bloginfo( 'name' ), ENT_QUOTES );
+    }
+
+    public function reporting_year_start_month(): int {
+        return max( 1, min( 12, (int) $this->get( self::REPORTING_YEAR_START ) ) );
     }
 
     public function notifications_paused(): bool {
@@ -149,18 +163,25 @@ class SettingsService {
         }
         $clean[ self::PRIVACY_NOTICE_VERSION ] = $version;
 
-        // Sender identity — empty means "use the default".
+        // Sender identity — empty means "use the site's defaults".
         $from_address = trim( (string) ( $input[ self::MAIL_FROM_ADDRESS ] ?? '' ) );
         if ( $from_address !== '' && ! is_email( $from_address ) ) {
-            $errors->add( self::MAIL_FROM_ADDRESS, __( 'Enter a valid email address, or leave the field empty to use the default.', 'rotary-grants' ) );
+            $errors->add( self::MAIL_FROM_ADDRESS, __( 'Enter a valid email address, or leave the field empty to use WordPress\'s normal sender.', 'rotary-grants' ) );
         }
-        $clean[ self::MAIL_FROM_ADDRESS ] = $from_address !== '' ? $from_address : self::DEFAULTS[ self::MAIL_FROM_ADDRESS ];
+        $clean[ self::MAIL_FROM_ADDRESS ] = $from_address;
 
         $from_name = trim( (string) preg_replace( '/[\r\n\t]+/', ' ', (string) ( $input[ self::MAIL_FROM_NAME ] ?? '' ) ) );
         if ( mb_strlen( $from_name ) > 100 || preg_match( '/[<>"@]/', $from_name ) ) {
             $errors->add( self::MAIL_FROM_NAME, __( 'Enter a plain name of 100 characters or fewer, without < > " or @.', 'rotary-grants' ) );
         }
-        $clean[ self::MAIL_FROM_NAME ] = $from_name !== '' ? $from_name : self::DEFAULTS[ self::MAIL_FROM_NAME ];
+        $clean[ self::MAIL_FROM_NAME ] = $from_name;
+
+        $month = (string) ( $input[ self::REPORTING_YEAR_START ] ?? '1' );
+        if ( ! preg_match( '/^(?:[1-9]|1[0-2])$/', $month ) ) {
+            $errors->add( self::REPORTING_YEAR_START, __( 'Choose the month the reporting year starts.', 'rotary-grants' ) );
+            $month = '1';
+        }
+        $clean[ self::REPORTING_YEAR_START ] = $month;
 
         $clean[ self::NOTIFICATIONS_PAUSED ] = ( $input[ self::NOTIFICATIONS_PAUSED ] ?? '' ) === '1' ? '1' : '0';
 

@@ -7,7 +7,9 @@
  *                                         ('help_email', 'notification_recipients',
  *                                         'privacy_notice_url', 'privacy_notice_version',
  *                                         'mail_from_name', 'mail_from_address',
- *                                         'notifications_paused' ['1'|'0']).
+ *                                         'notifications_paused' ['1'|'0'],
+ *                                         'reporting_year_start_month' ['1'..'12']).
+ *   $site_name      string                The site's name (shown as the From-name fallback).
  *                                         After a failed save, these are what was submitted.
  *   $errors         array<string,string>  Error messages keyed by setting key
  *                                         (or 'forbidden' / 'db_error').
@@ -135,8 +137,8 @@ $field_ids        = [
         <table class="form-table" role="presentation">
             <?php
             foreach ( [
-                'mail_from_name'    => [ __( 'From name', 'rotary-grants' ), 'text', __( 'Shown as the sender of acknowledgement and staff emails.', 'rotary-grants' ) ],
-                'mail_from_address' => [ __( 'From address', 'rotary-grants' ), 'email', __( 'Must be an address on the site\'s own domain so SiteGround\'s mail authentication (SPF/DKIM) covers it. Replies go to the help/contact email above.', 'rotary-grants' ) ],
+                'mail_from_name'    => [ __( 'From name', 'rotary-grants' ), 'text', sprintf( /* translators: %s: site name */ __( 'Shown as the sender of all Rotary Grants emails. Leave empty to use the site name ("%s").', 'rotary-grants' ), $site_name ) ],
+                'mail_from_address' => [ __( 'From address', 'rotary-grants' ), 'email', __( 'An address on the site\'s own domain, so the domain\'s mail authentication (SPF/DKIM) covers it. Leave empty to use WordPress\'s normal sender. Replies go to the help/contact email above.', 'rotary-grants' ) ],
             ] as $key => [ $label, $type, $desc ] ) :
                 $err = $errors[ $key ] ?? '';
                 $id  = $field_ids[ $key ];
@@ -163,6 +165,21 @@ $field_ids        = [
                         <?php esc_html_e( 'Hold all Rotary Grants emails in the queue instead of sending them', 'rotary-grants' ); ?>
                     </label>
                     <p class="description"><?php esc_html_e( 'Applications are still accepted and saved while paused. Untick to send everything that has been held (within a few minutes, or straight away from the Notifications screen).', 'rotary-grants' ); ?></p>
+                </td>
+            </tr>
+        </table>
+
+        <h2><?php esc_html_e( 'Reports', 'rotary-grants' ); ?></h2>
+        <table class="form-table" role="presentation">
+            <tr>
+                <th scope="row"><label for="grants-reporting-year"><?php esc_html_e( 'Reporting year starts in', 'rotary-grants' ); ?></label></th>
+                <td>
+                    <select id="grants-reporting-year" name="reporting_year_start_month">
+                        <?php for ( $m = 1; $m <= 12; $m++ ) : ?>
+                            <option value="<?php echo esc_attr( (string) $m ); ?>" <?php selected( (string) ( $values['reporting_year_start_month'] ?? '1' ), (string) $m ); ?>><?php echo esc_html( wp_date( 'F', mktime( 12, 0, 0, $m, 1, 2000 ) ) ); ?></option>
+                        <?php endfor; ?>
+                    </select>
+                    <p class="description"><?php esc_html_e( 'Used to group payments by the date they were made. January = calendar year; July = the Rotary year; or your charity\'s accounting year. Round-based reports are not affected.', 'rotary-grants' ); ?></p>
                 </td>
             </tr>
         </table>

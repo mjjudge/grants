@@ -13,12 +13,13 @@ guessed.
 | Naming | Plugin "Rotary Grants", slug `rotary-grants`, not Tree-of-Light-specific | **Decided** — see `backlog/DECISIONS.md`; confirm final public-facing wording for the application page per fund |
 | Settings and staff notification | A Settings screen with a configurable notification recipient list, separate from the applicant acknowledgement | **Decided to build** — see `backlog/DECISIONS.md`; confirm the actual initial recipient addresses before a live round opens |
 | Applicants | Organisations and eligible community groups; no login | Eligibility wording from source remains current, per fund |
-| Round identity | Fund name + year label, with separate actual payment dates | Award meeting/payment year and accounting reporting, per fund |
+| Round identity | Fund name + year label, with separate actual payment dates | Award meeting/payment year per fund |
+| Reporting year | **Built (DEC-016):** global setting, default calendar year (January) | Confirm whether the treasurer wants the Rotary year (July) or the charity's accounting year instead — one Settings change |
 | Budget | Manually set distributable budget, per round. **Over-budget policy decided (DEC-014):** allowed with a warning and a mandatory note of where the extra money comes from | Amount and authority to amend |
 | Deadline | Configured date/time in WordPress timezone | Open/close dates and late-application handling |
 | Award limits | No invented cap | Whether a cap/minimum is wanted, per fund |
 | Repeat applicants | Allowed; previous history visible | Repeat-award rules and multiple applications per round |
-| Contact | Named organisation representative | Help inbox and ownership. **Notification sender decided:** `funds@rotaryinthevale.org` (editable in Settings; Reply-To = help email) — see `backlog/DECISIONS.md` DEC-011 |
+| Contact | Named organisation representative | Help inbox and ownership. **Notification sender decided:** `funds@rotaryinthevale.org` / "Rotary in the Vale" — **must be entered in Settings** (the plugin's built-in defaults are generic: site name / WordPress sender); Reply-To = help email — see `backlog/DECISIONS.md` DEC-011 |
 | Publicity | Preserve current undertaking visibly, per fund | Exceptions, photo handling, and safeguarding |
 | Future-round email | Separate optional unticked preference | Approved wording, withdrawal route, and responsible entity |
 | Bank details | Treasurer verifies outside WordPress | Existing verification/payment process |

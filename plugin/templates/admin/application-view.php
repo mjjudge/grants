@@ -239,7 +239,7 @@ $groups = [
                 <?php endforeach; ?>
                 </tbody>
             </table>
-            <p class="description"><?php esc_html_e( 'Award and payment history will appear here once decisions and payments are recorded.', 'rotary-grants' ); ?></p>
+            <p class="description"><?php esc_html_e( 'Awards and payments for each are on the organisation\'s page.', 'rotary-grants' ); ?></p>
         <?php endif; ?>
     <?php endif; ?>
 

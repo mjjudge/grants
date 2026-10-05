@@ -31,6 +31,7 @@ class Menu {
         add_submenu_page( 'grants-dashboard', __( 'Applications', 'rotary-grants' ),           __( 'Applications', 'rotary-grants' ),   'grants_access',        'grants-applications', [ new ApplicationListPage(), 'render' ] );
         add_submenu_page( 'grants-dashboard', __( 'Awards', 'rotary-grants' ),                 __( 'Awards', 'rotary-grants' ),         'grants_access',        'grants-awards',    [ new AwardsPage(), 'render' ] );
         add_submenu_page( 'grants-dashboard', __( 'Payments', 'rotary-grants' ),               __( 'Payments', 'rotary-grants' ),       'grants_access',        'grants-payments',  [ new PaymentsPage(), 'render' ] );
+        add_submenu_page( 'grants-dashboard', __( 'Reports', 'rotary-grants' ),                __( 'Reports', 'rotary-grants' ),        'grants_access',        'grants-reports',   [ new ReportsPage(), 'render' ] );
         add_submenu_page( 'grants-dashboard', __( 'Conflicts of Interest', 'rotary-grants' ),  __( 'Conflicts of Interest', 'rotary-grants' ), 'grants_access', 'grants-declarations', [ new DeclarationsPage(), 'render' ] );
         add_submenu_page( 'grants-dashboard', __( 'Enter Application', 'rotary-grants' ),      __( 'Enter Application', 'rotary-grants' ), 'grants_manage_organisations', 'grants-applications-add', [ new StaffApplicationPage(), 'render' ] );
         add_submenu_page( 'grants-dashboard', __( 'Organisations', 'rotary-grants' ),          __( 'Organisations', 'rotary-grants' ),  'grants_access',        'grants-organisations', [ new OrganisationPage(), 'render' ] );

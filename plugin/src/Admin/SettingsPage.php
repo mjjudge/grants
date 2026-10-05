@@ -41,7 +41,9 @@ class SettingsPage {
             SettingsService::MAIL_FROM_NAME          => $service->get( SettingsService::MAIL_FROM_NAME ),
             SettingsService::MAIL_FROM_ADDRESS       => $service->get( SettingsService::MAIL_FROM_ADDRESS ),
             SettingsService::NOTIFICATIONS_PAUSED    => $service->get( SettingsService::NOTIFICATIONS_PAUSED ),
+            SettingsService::REPORTING_YEAR_START    => $service->get( SettingsService::REPORTING_YEAR_START ),
         ];
+        $site_name = wp_specialchars_decode( (string) get_bloginfo( 'name' ), ENT_QUOTES );
         $errors = [];
 
         $state_key = self::state_key();
@@ -74,6 +76,7 @@ class SettingsPage {
             SettingsService::MAIL_FROM_NAME          => sanitize_text_field( wp_unslash( $_POST['mail_from_name'] ?? '' ) ),
             SettingsService::MAIL_FROM_ADDRESS       => sanitize_text_field( wp_unslash( $_POST['mail_from_address'] ?? '' ) ),
             SettingsService::NOTIFICATIONS_PAUSED    => ( $_POST['notifications_paused'] ?? '' ) === '1' ? '1' : '',
+            SettingsService::REPORTING_YEAR_START    => (string) absint( $_POST['reporting_year_start_month'] ?? 1 ),
         ];
 
         $result = ( new SettingsService() )->save( $input );
