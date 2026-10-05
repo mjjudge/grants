@@ -105,3 +105,79 @@
 .grants-admin .grants-search-results li {
     margin-bottom: 6px;
 }
+
+.grants-admin .grants-declare-box {
+    border: 2px solid #dba617;
+    background: #fcf9e8;
+    padding: 4px 16px 12px;
+    max-width: 900px;
+}
+
+.grants-admin .grants-declare-box--clear {
+    border-color: #c3c4c7;
+    background: #fff;
+}
+
+.grants-admin .grants-decl--undeclared {
+    color: #996800;
+}
+
+.grants-admin .grants-decl--financial,
+.grants-admin .grants-decl--loyalty,
+.grants-admin .grants-row-conflict td {
+    color: #b32d2e;
+    font-weight: 600;
+}
+
+.grants-admin .grants-findings {
+    margin: 0;
+}
+
+.grants-admin .grants-finding--not_met {
+    color: #b32d2e;
+}
+
+.grants-admin .grants-finding--unsure {
+    color: #996800;
+}
+
+.grants-admin .grants-timeline {
+    margin-left: 0;
+    list-style: none;
+    max-width: 900px;
+}
+
+.grants-admin .grants-timeline__item {
+    border-left: 3px solid #c3c4c7;
+    padding: 4px 12px;
+    margin-bottom: 10px;
+    background: #fff;
+}
+
+.grants-admin .grants-timeline__item--info_request {
+    border-left-color: #2271b1;
+}
+
+.grants-admin .grants-timeline__item--addendum {
+    border-left-color: #00a32a;
+}
+
+.grants-admin .grants-timeline__item--status {
+    border-left-color: #8c8f94;
+    font-size: 12px;
+}
+
+.grants-admin .grants-timeline__meta {
+    color: #50575e;
+    font-size: 12px;
+}
+
+.grants-admin .grants-committee-forms details,
+.grants-admin .grants-review-form {
+    margin: 10px 0;
+    max-width: 900px;
+}
+
+.grants-admin .grants-findings-form td {
+    vertical-align: middle;
+}

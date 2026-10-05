@@ -5,7 +5,11 @@ namespace Rotary\Grants\Admin;
 use Rotary\Grants\Services\ApplicationForm;
 use Rotary\Grants\Services\ApplicationService;
 use Rotary\Grants\Services\ApplicationStatus;
+use Rotary\Grants\Services\ConflictService;
 use Rotary\Grants\Services\ContactService;
+use Rotary\Grants\Services\ReviewService;
+use Rotary\Grants\Services\WorkflowService;
+use Rotary\Grants\Support\Money;
 use Rotary\Grants\Services\OrganisationService;
 use Rotary\Grants\Services\RoundService;
 
@@ -45,7 +49,28 @@ class ApplicationListPage {
         $organisation_id = absint( $_GET['organisation_id'] ?? 0 );
         $status          = sanitize_key( $_GET['status'] ?? '' );
         $status          = in_array( $status, ApplicationStatus::all(), true ) ? $status : '';
-        $applications    = $service->list( $round_id ?: null, $status ?: null, $organisation_id ?: null );
+        $min_raw         = sanitize_text_field( wp_unslash( $_GET['min'] ?? '' ) );
+        $max_raw         = sanitize_text_field( wp_unslash( $_GET['max'] ?? '' ) );
+        $town            = sanitize_text_field( wp_unslash( $_GET['town'] ?? '' ) );
+        $show_duplicates = ! empty( $_GET['duplicates'] );
+        $min_pence       = $min_raw !== '' && ! is_wp_error( Money::parse_gbp( $min_raw ) ) ? Money::parse_gbp( $min_raw ) : null;
+        $max_pence       = $max_raw !== '' && ! is_wp_error( Money::parse_gbp( $max_raw ) ) ? Money::parse_gbp( $max_raw ) : null;
+        $applications    = $service->list( $round_id ?: null, $status ?: null, $organisation_id ?: null, [
+            'min_pence'       => $min_pence,
+            'max_pence'       => $max_pence,
+            'town'            => $town,
+            'hide_duplicates' => ! $show_duplicates,
+        ] );
+        $review_counts   = ( new ReviewService() )->counts( array_map( static fn( $a ) => $a->id, $applications ) );
+        $is_committee    = ConflictService::is_committee();
+        $my_declarations = [];
+        if ( $is_committee ) {
+            $conflicts = new ConflictService();
+            foreach ( $applications as $a ) {
+                $my_declarations[ $a->id ] = $conflicts->status_for( $a->id );
+            }
+        }
+        $declarations_url = add_query_arg( [ 'page' => 'grants-declarations', 'round_id' => $round_id ], admin_url( 'admin.php' ) );
         $rounds          = ( new RoundService() )->all();
         $base_url        = add_query_arg( 'page', 'grants-applications', admin_url( 'admin.php' ) );
         $add_url         = current_user_can( OrganisationService::CAPABILITY ) ? add_query_arg( 'page', 'grants-applications-add', admin_url( 'admin.php' ) ) : '';
@@ -73,6 +98,31 @@ class ApplicationListPage {
         $entered_by   = $application->entered_by_user_id ? get_userdata( (int) $application->entered_by_user_id ) : null;
         $notice       = sanitize_key( $_GET['grants_notice'] ?? '' );
         $error        = $this->take_error();
+        $committee_error = CommitteeActions::take_error();
+        $error        = $error !== '' ? $error : ( is_string( $committee_error ) ? $committee_error : '' );
+
+        // Committee panel (DEC-013): discussion only after a "no conflict" declaration.
+        $conflicts        = new ConflictService();
+        $is_committee     = ConflictService::is_committee();
+        $declaration      = $is_committee ? $conflicts->current( $application->id ) : null;
+        $decl_status      = $declaration ? $declaration->declaration : ConflictService::UNDECLARED;
+        $is_clear         = $decl_status === ConflictService::NONE;
+        $reviews          = $is_clear ? ( new ReviewService() )->for_application( $application->id ) : [];
+        $reviews          = is_wp_error( $reviews ) ? [] : $reviews;
+        $my_review        = $is_clear ? ( new ReviewService() )->current_for( $application->id, get_current_user_id() ) : null;
+        $notes            = $is_clear ? ( new WorkflowService() )->notes_for( $application->id ) : [];
+        $notes            = is_wp_error( $notes ) ? [] : $notes;
+        $can_review       = ReviewService::can_review() && ApplicationStatus::is_open( $application->status );
+        $can_progress     = WorkflowService::can_progress();
+        $can_withdraw     = current_user_can( 'grants_manage_organisations' );
+        $transitions      = ApplicationStatus::targets( $application->status );
+        $checks           = ReviewService::checks();
+        $history          = $application->organisation_id
+            ? array_values( array_filter( $service->list( null, null, $application->organisation_id ), static fn( $a ) => $a->id !== $application->id ) )
+            : [];
+        $duplicate_of     = $application->duplicate_of_id ? $service->find( $application->duplicate_of_id ) : null;
+        $c_nonce_action   = CommitteeActions::NONCE_ACTION;
+        $c_nonce_field    = CommitteeActions::NONCE_FIELD;
         $nonce_action = self::NONCE_ACTION;
         $nonce_field  = self::NONCE_FIELD;
 

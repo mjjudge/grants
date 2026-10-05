@@ -21,6 +21,9 @@
  *   $error       string               Error message from the last action, or ''.
  *   $nonce_action string              Nonce action for link forms.
  *   $nonce_field  string              Nonce field name.
+ *   $history      object[]            The linked organisation's other applications (any round).
+ *   $duplicate_of object|null         Application this one is marked a duplicate of.
+ *   …plus the committee-panel variables documented in partials/committee-panel.php.
  */
 defined( 'ABSPATH' ) || exit;
 
@@ -58,6 +61,16 @@ $groups = [
         'linked'          => __( 'Application linked to the organisation.', 'rotary-grants' ),
         'linked_new'      => __( 'New organisation created from this application and linked.', 'rotary-grants' ),
         'entered'         => __( 'Application entered.', 'rotary-grants' ),
+        'declared'        => __( 'Declaration recorded.', 'rotary-grants' ),
+        'review_saved'    => __( 'Review saved.', 'rotary-grants' ),
+        'note_added'      => __( 'Note added.', 'rotary-grants' ),
+        'info_drafted'    => __( 'Draft request saved — it has not been sent.', 'rotary-grants' ),
+        'info_sent'       => __( 'Request emailed to the applicant.', 'rotary-grants' ),
+        'info_discarded'  => __( 'Draft discarded.', 'rotary-grants' ),
+        'addendum_added'  => __( 'Information recorded.', 'rotary-grants' ),
+        'status_changed'  => __( 'Status changed.', 'rotary-grants' ),
+        'duplicate_marked'   => __( 'Marked as a duplicate.', 'rotary-grants' ),
+        'duplicate_unmarked' => __( 'Duplicate mark removed.', 'rotary-grants' ),
         'already_entered' => __( 'This form had already been saved — showing the application it created.', 'rotary-grants' ),
     ];
     ?>
@@ -80,6 +93,14 @@ $groups = [
             <?php if ( (string) $application->entry_reason !== '' ) : ?>
                 <br><?php esc_html_e( 'Note:', 'rotary-grants' ); ?> <?php echo esc_html( $application->entry_reason ); ?>
             <?php endif; ?>
+        </p></div>
+    <?php endif; ?>
+
+    <?php if ( $duplicate_of ) : ?>
+        <div class="notice notice-warning inline"><p>
+            <?php esc_html_e( 'Marked as a duplicate of', 'rotary-grants' ); ?>
+            <a href="<?php echo esc_url( add_query_arg( [ 'action' => 'view', 'id' => $duplicate_of->id ], $list_url ) ); ?>"><?php echo esc_html( $duplicate_of->public_reference ); ?></a>.
+            <?php esc_html_e( 'See the committee record below for the reason.', 'rotary-grants' ); ?>
         </p></div>
     <?php endif; ?>
 
@@ -189,6 +210,35 @@ $groups = [
             <p><?php $link_button( 0, __( 'None of these — create a new organisation from this application', 'rotary-grants' ), false ); ?></p>
         <?php endif; ?>
     <?php endif; ?>
+
+    <?php if ( $organisation ) : ?>
+        <h3><?php esc_html_e( 'Previous applications from this organisation', 'rotary-grants' ); ?></h3>
+        <?php if ( ! $history ) : ?>
+            <p><?php esc_html_e( 'None — this is its first application on record.', 'rotary-grants' ); ?></p>
+        <?php else : ?>
+            <table class="widefat striped">
+                <thead><tr>
+                    <th scope="col"><?php esc_html_e( 'Reference', 'rotary-grants' ); ?></th>
+                    <th scope="col"><?php esc_html_e( 'Round', 'rotary-grants' ); ?></th>
+                    <th scope="col" class="num"><?php esc_html_e( 'Requested', 'rotary-grants' ); ?></th>
+                    <th scope="col"><?php esc_html_e( 'Status', 'rotary-grants' ); ?></th>
+                </tr></thead>
+                <tbody>
+                <?php foreach ( $history as $h ) : ?>
+                    <tr>
+                        <td><a href="<?php echo esc_url( add_query_arg( [ 'action' => 'view', 'id' => $h->id ], $list_url ) ); ?>"><?php echo esc_html( $h->public_reference ); ?></a></td>
+                        <td><?php echo esc_html( $h->fund_name . ' — ' . $h->round_label ); ?></td>
+                        <td class="num"><?php echo esc_html( $h->requested_pence === null ? '—' : Money::format_gbp( $h->requested_pence ) ); ?></td>
+                        <td><?php echo esc_html( ApplicationStatus::label( $h->status ) ); ?></td>
+                    </tr>
+                <?php endforeach; ?>
+                </tbody>
+            </table>
+            <p class="description"><?php esc_html_e( 'Award and payment history will appear here once decisions and payments are recorded.', 'rotary-grants' ); ?></p>
+        <?php endif; ?>
+    <?php endif; ?>
+
+    <?php include __DIR__ . '/partials/committee-panel.php'; ?>
 
     <h2><?php esc_html_e( 'As submitted', 'rotary-grants' ); ?></h2>
     <?php foreach ( $groups as $heading => $fields ) : ?>

@@ -300,10 +300,65 @@ Use clearly fake names (e.g. prefix "TEST") so they are easy to find.
 
 ## Section 6 — Review and conflicts (G06)
 
-- [ ] Applications filter correctly by round, status, amount, locality
-- [ ] A reviewer with a declared conflict is blocked from reviewing/deciding
-      that application via direct request, not just UI hiding
-- [ ] Internal notes are never visible to any unauthenticated or applicant-facing view
+Accounts: two reviewers (`grants_review`), a coordinator
+(`grants_manage_organisations`), a decision maker (`grants_decide`) and a
+treasurer (`grants_pay` only). Each also needs `grants_access`.
+
+### 6a. Conflict of interest
+
+- [ ] A reviewer opening an application sees "Before you can see the
+      committee's reviews and notes…" and no reviews, notes or review form
+- [ ] Declaring "no conflict" reveals the committee record and "Add my review"
+- [ ] A second reviewer declares a loyalty conflict (description required) →
+      sees only the conflict notice: no reviews, notes or forms; trying to
+      review by any route is refused
+- [ ] The conflicted reviewer cannot change the declaration back to "no
+      conflict"; can upgrade it to financial
+- [ ] Rotary Grants → Conflicts of Interest: a member can declare against all
+      of a round's applications at once; recorded conflicts show "cannot be
+      changed"
+- [ ] The decision maker sees the round's conflicts register (who, which
+      application, what, when, description); a reviewer does not
+- [ ] The treasurer sees applications but "Committee reviews and internal
+      notes are visible to committee members only"
+- [ ] `<prefix>grants_audit_events` `conflict_declared` rows contain the type
+      only, not the description
+
+### 6b. Reviews and committee record
+
+- [ ] Add a review with some findings (e.g. Bank account: Unsure — "statement
+      not seen") and "Fund in part" £X → shown in the Reviews table;
+      application moves to Under review
+- [ ] A part amount equal to or above the requested amount is refused
+- [ ] Update the review → still one row for that reviewer, marked "version 2"
+- [ ] Add an internal note → appears in the committee record; not visible to
+      the conflicted reviewer or the treasurer
+- [ ] Save a request for more information → shows "Draft — not sent"; nothing
+      in Mailpit. Press "Send to applicant" → the applicant receives it (from
+      funds@…, Reply-To help email, containing the request text and
+      reference, and none of the internal notes); status becomes More
+      information requested; it cannot be sent twice
+- [ ] Record the applicant's reply with the date received → status returns
+      to Under review; the submitted answers are unchanged
+- [ ] Coordinator withdraws an application (reason required) → Withdrawn; no
+      further reviews possible
+- [ ] Mark an application as a duplicate of another by reference → hidden from
+      the list unless "Show duplicates" is ticked; banner links to the kept
+      one; "Not a duplicate after all" reverses it with a reason
+
+### 6c. Committee list
+
+- [ ] Filters by round, status, amount range and town work together
+- [ ] Each row shows the number of reviews and, for committee members, your
+      declaration on it
+- [ ] An application linked to an organisation lists that organisation's
+      previous applications
+
+### 6d. Permissions
+
+- [ ] A reviewer can't withdraw or mark duplicates; an editor without grants
+      capabilities is refused every committee action and the Conflicts of
+      Interest screen (403)
 
 ## Section 7 — Decisions and awards (G07) **[SMOKE]**
 

@@ -12,11 +12,19 @@
  *   $base_url     string    List URL without filters.
  *   $add_url      string    Staff "Add application" URL, or '' if not permitted.
  *   $organisation_id int    Organisation filter (0 = all).
+ *   $min_raw, $max_raw string  Amount filter inputs as typed.
+ *   $town         string    Town filter.
+ *   $show_duplicates bool   Include applications marked as duplicates.
+ *   $review_counts array<int,int>  Application id => current review count.
+ *   $is_committee bool      User is a committee member.
+ *   $my_declarations array<int,string>  Application id => user's declaration status.
+ *   $declarations_url string  Conflicts-of-interest screen for the selected round.
  */
 defined( 'ABSPATH' ) || exit;
 
 use Rotary\Grants\Services\ApplicationService;
 use Rotary\Grants\Services\ApplicationStatus;
+use Rotary\Grants\Services\ConflictService;
 use Rotary\Grants\Support\Money;
 use Rotary\Grants\Support\SiteTime;
 ?>
@@ -44,8 +52,15 @@ use Rotary\Grants\Support\SiteTime;
                 <option value="<?php echo esc_attr( $s ); ?>" <?php selected( $status, $s ); ?>><?php echo esc_html( ApplicationStatus::label( $s ) ); ?></option>
             <?php endforeach; ?>
         </select>
+        <label><?php esc_html_e( '£ from', 'rotary-grants' ); ?> <input type="text" name="min" class="small-text" value="<?php echo esc_attr( $min_raw ); ?>"></label>
+        <label><?php esc_html_e( 'to', 'rotary-grants' ); ?> <input type="text" name="max" class="small-text" value="<?php echo esc_attr( $max_raw ); ?>"></label>
+        <label><?php esc_html_e( 'Town', 'rotary-grants' ); ?> <input type="text" name="town" class="regular-text" style="width:10em" value="<?php echo esc_attr( $town ); ?>"></label>
+        <label><input type="checkbox" name="duplicates" value="1" <?php checked( $show_duplicates ); ?>> <?php esc_html_e( 'Show duplicates', 'rotary-grants' ); ?></label>
         <button type="submit" class="button"><?php esc_html_e( 'Filter', 'rotary-grants' ); ?></button>
     </form>
+    <?php if ( $is_committee && $round_id ) : ?>
+        <p><a href="<?php echo esc_url( $declarations_url ); ?>"><?php esc_html_e( 'Declare conflicts of interest for this round', 'rotary-grants' ); ?></a></p>
+    <?php endif; ?>
 
     <table class="widefat striped">
         <thead>
@@ -57,11 +72,13 @@ use Rotary\Grants\Support\SiteTime;
                 <th scope="col"><?php esc_html_e( 'Round', 'rotary-grants' ); ?></th>
                 <th scope="col"><?php esc_html_e( 'Status', 'rotary-grants' ); ?></th>
                 <th scope="col"><?php esc_html_e( 'Submitted', 'rotary-grants' ); ?></th>
+                <th scope="col" class="num"><?php esc_html_e( 'Reviews', 'rotary-grants' ); ?></th>
+                <?php if ( $is_committee ) : ?><th scope="col"><?php esc_html_e( 'Your declaration', 'rotary-grants' ); ?></th><?php endif; ?>
             </tr>
         </thead>
         <tbody>
             <?php if ( ! $applications ) : ?>
-                <tr><td colspan="7"><?php esc_html_e( 'No applications match.', 'rotary-grants' ); ?></td></tr>
+                <tr><td colspan="9"><?php esc_html_e( 'No applications match.', 'rotary-grants' ); ?></td></tr>
             <?php endif; ?>
             <?php foreach ( $applications as $a ) : ?>
                 <tr>
@@ -69,6 +86,7 @@ use Rotary\Grants\Support\SiteTime;
                         <a href="<?php echo esc_url( add_query_arg( [ 'action' => 'view', 'id' => $a->id ], $base_url ) ); ?>"><strong><?php echo esc_html( $a->public_reference ); ?></strong></a>
                         <?php if ( $a->source !== ApplicationService::SOURCE_PUBLIC ) : ?><br><span class="grants-badge"><?php echo esc_html( ApplicationService::source_label( $a->source ) ); ?></span><?php endif; ?>
                         <?php if ( $a->is_late ) : ?> <span class="grants-badge grants-badge--late"><?php esc_html_e( 'Late', 'rotary-grants' ); ?></span><?php endif; ?>
+                        <?php if ( $a->duplicate_of_id ) : ?> <span class="grants-badge"><?php esc_html_e( 'Duplicate', 'rotary-grants' ); ?></span><?php endif; ?>
                     </td>
                     <td><?php echo esc_html( $a->organisation_name ); ?><?php if ( ! $a->organisation_id ) : ?> <span class="grants-badge"><?php esc_html_e( 'not linked', 'rotary-grants' ); ?></span><?php endif; ?></td>
                     <td><?php echo esc_html( $a->organisation_town ); ?></td>
@@ -76,6 +94,10 @@ use Rotary\Grants\Support\SiteTime;
                     <td><?php echo esc_html( trim( $a->fund_name . ' — ' . $a->round_label, ' —' ) ); ?></td>
                     <td><?php echo esc_html( ApplicationStatus::label( $a->status ) ); ?></td>
                     <td><?php echo esc_html( SiteTime::display( $a->submitted_at ) ?: '—' ); ?></td>
+                    <td class="num"><?php echo esc_html( (string) ( $review_counts[ $a->id ] ?? 0 ) ); ?></td>
+                    <?php if ( $is_committee ) : $d = $my_declarations[ $a->id ] ?? 'undeclared'; ?>
+                        <td><span class="grants-decl grants-decl--<?php echo esc_attr( $d ); ?>"><?php echo esc_html( ConflictService::label( $d ) ); ?></span></td>
+                    <?php endif; ?>
                 </tr>
             <?php endforeach; ?>
         </tbody>

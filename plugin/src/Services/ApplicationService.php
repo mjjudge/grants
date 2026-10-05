@@ -262,10 +262,28 @@ class ApplicationService {
     /**
      * @return object[] Newest first. Snapshot JSON is not decoded here.
      */
-    public function list( ?int $round_id = null, ?string $status = null, ?int $organisation_id = null ): array {
+    /**
+     * @param array{min_pence?: int|null, max_pence?: int|null, town?: string, hide_duplicates?: bool} $filters
+     */
+    public function list( ?int $round_id = null, ?string $status = null, ?int $organisation_id = null, array $filters = [] ): array {
         global $wpdb;
         $where  = [];
         $params = [];
+        if ( isset( $filters['min_pence'] ) && $filters['min_pence'] !== null ) {
+            $where[]  = 'a.requested_pence >= %d';
+            $params[] = (int) $filters['min_pence'];
+        }
+        if ( isset( $filters['max_pence'] ) && $filters['max_pence'] !== null ) {
+            $where[]  = 'a.requested_pence <= %d';
+            $params[] = (int) $filters['max_pence'];
+        }
+        if ( trim( (string) ( $filters['town'] ?? '' ) ) !== '' ) {
+            $where[]  = 'a.organisation_town LIKE %s';
+            $params[] = '%' . $wpdb->esc_like( trim( (string) $filters['town'] ) ) . '%';
+        }
+        if ( ! empty( $filters['hide_duplicates'] ) ) {
+            $where[] = 'a.duplicate_of_id IS NULL';
+        }
         if ( $organisation_id ) {
             $where[]  = 'a.organisation_id = %d';
             $params[] = $organisation_id;
@@ -279,7 +297,7 @@ class ApplicationService {
             $params[] = $status;
         }
         $sql = "SELECT a.id, a.round_id, a.organisation_id, a.public_reference, a.status, a.organisation_name, a.organisation_town,
-                       a.requested_pence, a.source, a.is_late, a.submitted_at, r.label AS round_label, r.fund_name
+                       a.requested_pence, a.source, a.is_late, a.duplicate_of_id, a.submitted_at, r.label AS round_label, r.fund_name
                 FROM {$wpdb->prefix}grants_applications a
                 LEFT JOIN {$wpdb->prefix}grants_rounds r ON r.id = a.round_id"
             . ( $where ? ' WHERE ' . implode( ' AND ', $where ) : '' )
@@ -357,6 +375,9 @@ class ApplicationService {
         $row->organisation_id = empty( $row->organisation_id ) ? null : (int) $row->organisation_id;
         if ( property_exists( $row, 'contact_id' ) ) {
             $row->contact_id = empty( $row->contact_id ) ? null : (int) $row->contact_id;
+        }
+        if ( property_exists( $row, 'duplicate_of_id' ) ) {
+            $row->duplicate_of_id = empty( $row->duplicate_of_id ) ? null : (int) $row->duplicate_of_id;
         }
         if ( isset( $row->is_late ) ) {
             $row->is_late = (bool) (int) $row->is_late;

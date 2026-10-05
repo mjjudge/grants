@@ -2,7 +2,7 @@
 
 **Owner:** Rotary in the Vale  
 **Repository:** not yet published  
-**Version:** 0.6.0 (G05 organisations — see "Current status" below)  
+**Version:** 0.7.0 (G06 committee review — see "Current status" below)  
 **Requires:** WordPress 6.0+, PHP 8.2+ (provisional — see `docs/ARCHITECTURE.md`)  
 **Hosted on:** SiteGround shared hosting (same account as the sibling plugins below)
 
@@ -31,7 +31,7 @@ It shares no code, database table, or credential with any of them — see
 
 ## Current status
 
-**G01–G05 done — 0.6.0.** The plugin activates, creates its tables, grants
+**G01–G06 done — 0.7.0.** The plugin activates, creates its tables, grants
 the `grants_*` capabilities to Administrator only (never Editor), and provides:
 
 - **Public application form** — put
@@ -48,14 +48,20 @@ the `grants_*` capabilities to Administrator only (never Editor), and provides:
   each one to an **organisation** from suggested matches (never automatic),
   and can **enter paper/email/phone applications** (labelled, late ones
   flagged with a reason)
+- **Committee review** — conflict-of-interest declarations before taking part
+  (any conflict blocks reviewing/deciding and hides the discussion), reviews
+  with eligibility findings and recommendations, internal notes, requests for
+  more information (drafted, then sent), applicant replies, withdrawal,
+  duplicates; per-round declarations screen and conflicts register;
+  committee list filters
 - **Organisations** — corrections with history, contacts over time,
   future-round email permissions with withdrawal, merging duplicates
 - **Funding Rounds** — create, edit, open, close, reopen and archive rounds
 - **Settings** — help email, staff notification recipients, privacy notice
 - **Access** (administrators) — who holds which capability
 
-No review, decision or payment yet. See `backlog/DECISIONS.md` DEC-007 to
-DEC-012.
+No decisions, awards or payments yet. See `backlog/DECISIONS.md` DEC-007 to
+DEC-013.
 
 ---
 
@@ -135,8 +141,8 @@ cycle is required on the live site to run it** — see `CLAUDE.md` and
    across the sibling plugins' release history.
 2. Read `docs/00-proposal.md` through `docs/08-source-notes.md` for the product
    brief, and `docs/grants-discovery.md` for the evidence it's grounded in.
-3. Read `backlog/BACKLOG.md` for the ordered task list (G00–G05 are done;
-   G06 is next) and `backlog/DECISIONS.md` for what's already been decided.
+3. Read `backlog/BACKLOG.md` for the ordered task list (G00–G06 are done;
+   G07 is next) and `backlog/DECISIONS.md` for what's already been decided.
 4. Confirm the still-open rows in `docs/07-decisions-and-launch.md` with the
    project owner before opening a live funding round — none of them are
    guessed, and none should be.
@@ -153,3 +159,4 @@ cycle is required on the live site to run it** — see `CLAUDE.md` and
 | 0.4.0 | G03 application form: `[rotary_grant_application fund="…"]` shortcode (one page per fund, concurrent funds supported), every docs/01 field with server-side validation and accessible errors that keep answers, per-round publicity/presentation wording (`presentation_text` column), nonce + session-bound HMAC token + origin check + honeypot + rate limit, idempotent InnoDB submission (`grants_applications`, `grants_submissions`), server-time closure, session-bound receipt, read-only admin Applications list/view. **Contains migrations — deactivate/reactivate required when upgrading.** |
 | 0.5.0 | G04 notifications: `grants_notifications` queue (unique command key per message, queued after commit), applicant acknowledgement and per-recipient staff notice (plain text, From `funds@rotaryinthevale.org` / Rotary in the Vale, Reply-To help email — editable in Settings), send-after-response plus 5-minute WP-Cron retries with backoff, failed-email screen with retry, pause switch, receipt mentions the acknowledgement. **Contains a migration — deactivate/reactivate required when upgrading.** Before launch: SPF/DKIM for the sender and a real cron job (see release checklist). |
 | 0.6.0 | G05 organisations: `grants_organisations`, `grants_contacts`, `grants_preferences`, `grants_amendments` tables and staff-entry columns; staff-confirmed linking of applications from suggested matches (name/charity number/postcode — never email), contacts over time, correction history, future-round permission history with withdrawal, merging duplicates, repeat-application flag, staff-entered paper/email/phone applications with source label and late flag. **Contains migrations — deactivate/reactivate required when upgrading.** |
+| 0.7.0 | G06 committee review: `grants_conflicts`, `grants_reviews`, `grants_application_notes` tables, duplicate and notification-link columns; conflict-of-interest declarations enforced in services (based on RI grants COI policy and Charity Commission CC29), reviews with eligibility findings and versioned history, notes, info requests emailed on explicit send, addenda, status workflow, duplicates, declarations screen and conflicts register, committee list filters and previous-application history. **Contains migrations — deactivate/reactivate required when upgrading.** |

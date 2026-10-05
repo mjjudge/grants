@@ -24,7 +24,9 @@ guessed.
 | Bank details | Treasurer verifies outside WordPress | Existing verification/payment process |
 | Evidence | Declarations then staff verification outside form | Whether governing documents/accounts need later uploads |
 | Privacy | Approved notice with configurable retention categories | Controller, purposes/lawful bases, periods, and rights route |
-| Access | Named accounts and custom capabilities, never auto-granted to Editor | Committee roles, conflicts, and decision authority |
+| Access | Named accounts and custom capabilities, never auto-granted to Editor | Committee roles and decision authority |
+| Conflicts of interest | **Built (DEC-013):** declare before taking part; any declared conflict blocks reviewing/deciding and hides the discussion; no overrides — based on Rotary International's grants COI policy (TRF Code of Policies §30.040) and Charity Commission CC29 | The club has no COI policy of its own: the committee should **adopt one** (the built behaviour is a ready-made starting point) and record it in its minutes |
+| Rotarian / family eligibility | Not restricted | RI bars current Rotarians, their families, club employees and anyone who left Rotary in the last 3 years from benefiting from *Foundation* grants. Decide whether anything similar applies to the club's own funds — not built |
 | Multi-fund model | A `fund_name` text field on each round; no separate Fund entity yet | Whether a fuller model (per-fund settings/eligibility/branding) is ever needed — add only if a specific fund's rules can't be expressed as a label |
 | Automated testing | None, matching the sibling plugins; manual TEST_PLAN.md + throwaway verification scripts | Revisit explicitly if a task's risk genuinely justifies the maintenance cost of a real framework — do not add one as a side effect |
 
