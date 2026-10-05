@@ -57,6 +57,9 @@ class Migrator {
             Migrations\CreateAwardsTable::class,
             Migrations\CreateAwardConditionsTable::class,
         ],
+        '0.9.0' => [
+            Migrations\CreatePaymentsTable::class,
+        ],
     ];
 
     public function run(): void {

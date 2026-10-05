@@ -220,3 +220,17 @@
     border: 2px solid #dba617;
     background: #fcf9e8;
 }
+
+.grants-admin .grants-progress--paid {
+    color: #007017;
+    font-weight: 600;
+}
+
+.grants-admin .grants-progress--part_paid {
+    color: #996800;
+    font-weight: 600;
+}
+
+.grants-admin .grants-ledger__reversal td {
+    background: #fcf0f1;
+}

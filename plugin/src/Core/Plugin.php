@@ -25,6 +25,7 @@ class Plugin {
             ( new \Rotary\Grants\Admin\StaffApplicationPage() )->register();
             ( new \Rotary\Grants\Admin\OrganisationPage() )->register();
             ( new \Rotary\Grants\Admin\CommitteeActions() )->register();
+            ( new \Rotary\Grants\Admin\PaymentsPage() )->register();
             ( new \Rotary\Grants\Admin\UserAccessSection() )->register();
             add_action( 'admin_enqueue_scripts', [ $this, 'enqueue_admin_assets' ] );
         }

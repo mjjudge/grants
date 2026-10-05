@@ -12,6 +12,8 @@ defined( 'ABSPATH' ) || exit;
  *                          counted separately, never as zero)
  *   available to award   = budget − approved commitments (negative when the
  *                          committee has knowingly gone over budget — DEC-014)
+ *   net paid             = payments − reversals on the round's awards
+ *   outstanding          = approved commitments − net paid on approved awards
  *
  * Payments never reduce "available" a second time (G08 adds net paid and
  * outstanding without touching these figures).
@@ -33,7 +35,8 @@ class BudgetService {
 
     /**
      * @return array{budget: int|null, committed: int, available: int|null, over_committed: int,
-     *               award_count: int, incomplete: int, over_budget_awards: object[]}
+     *               award_count: int, incomplete: int, over_budget_awards: object[],
+     *               net_paid: int, outstanding: int}
      */
     public function summary( object $round ): array {
         global $wpdb;
@@ -53,7 +56,16 @@ class BudgetService {
              ORDER BY aw.id",
             (int) $round->id
         ) );
+        $paid = $wpdb->get_row( $wpdb->prepare(
+            "SELECT COALESCE(SUM(CASE WHEN p.entry_type = 'payment' THEN p.amount_pence ELSE -p.amount_pence END), 0) AS net,
+                    COALESCE(SUM(CASE WHEN aw.status = 'approved' THEN (CASE WHEN p.entry_type = 'payment' THEN p.amount_pence ELSE -p.amount_pence END) ELSE 0 END), 0) AS net_approved
+             FROM {$wpdb->prefix}grants_payments p JOIN {$wpdb->prefix}grants_awards aw ON aw.id = p.award_id
+             WHERE aw.round_id = %d",
+            (int) $round->id
+        ) );
         return [
+            'net_paid'           => (int) ( $paid->net ?? 0 ),
+            'outstanding'        => $committed - (int) ( $paid->net_approved ?? 0 ),
             'budget'             => $budget,
             'committed'          => $committed,
             'available'          => $available,

@@ -55,6 +55,7 @@ $date_fmt = static fn( ?string $d ): string => $d ? wp_date( get_option( 'date_f
             — <?php echo esc_html( AwardService::status_label( $award->status ) ); ?>
             <?php if ( $award->approved_on ) : ?> · <?php echo esc_html( sprintf( /* translators: %s: date */ __( 'approved %s', 'rotary-grants' ), $date_fmt( $award->approved_on ) ) ); ?><?php endif; ?>
             <?php if ( $award_paid ) : ?> · <?php echo esc_html( sprintf( /* translators: %s: amount */ __( '%s paid', 'rotary-grants' ), Money::format_gbp( $award_paid ) ) ); ?><?php endif; ?>
+            · <a href="<?php echo esc_url( add_query_arg( [ 'page' => 'grants-payments', 'action' => 'award', 'id' => $award->id ], admin_url( 'admin.php' ) ) ); ?>"><?php esc_html_e( 'Payments', 'rotary-grants' ); ?></a>
         </p>
         <?php if ( $award->over_budget_pence > 0 ) : ?>
             <p class="grants-over-note"><strong><?php echo esc_html( sprintf( /* translators: %s: amount */ __( 'Approved %s beyond the round budget.', 'rotary-grants' ), Money::format_gbp( $award->over_budget_pence ) ) ); ?></strong>

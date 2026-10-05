@@ -118,23 +118,21 @@ class AwardService {
     }
 
     /**
-     * Net paid against an award (payments − reversals). Zero until the
-     * payment ledger exists (G08).
+     * Net paid against an award (payments − reversals), from the ledger.
+     * Returns 0 if the ledger table isn't there yet (files updated before
+     * the 0.9.0 migration has been run by reactivation).
      */
     public function net_paid( int $award_id ): int {
         global $wpdb;
-        $table = $wpdb->prefix . 'grants_payments';
-        static $exists = null;
-        if ( $exists === null ) {
-            $exists = $wpdb->get_var( $wpdb->prepare( 'SHOW TABLES LIKE %s', $table ) ) === $table;
-        }
+        static $exists = false;
         if ( ! $exists ) {
-            return 0;
+            $table  = $wpdb->prefix . 'grants_payments';
+            $exists = $wpdb->get_var( $wpdb->prepare( 'SHOW TABLES LIKE %s', $table ) ) === $table;
+            if ( ! $exists ) {
+                return 0;
+            }
         }
-        return (int) $wpdb->get_var( $wpdb->prepare(
-            "SELECT COALESCE(SUM(CASE WHEN entry_type = 'payment' THEN amount_pence ELSE -amount_pence END), 0) FROM {$table} WHERE award_id = %d",
-            $award_id
-        ) );
+        return ( new PaymentService() )->net_paid( $award_id );
     }
 
     public static function status_label( string $status ): string {

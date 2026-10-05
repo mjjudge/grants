@@ -401,12 +401,30 @@ conflict on each.
 
 ## Section 8 — Payment ledger (G08) **[SMOKE]**
 
-- [ ] Recording a payment above outstanding approval is rejected
-- [ ] Budget example from `docs/02-architecture-and-data.md`: £10,000 budget,
-      £3,000 approved, £1,000 paid → £7,000 available, £2,000 outstanding
-- [ ] A £200 reversal of that £1,000 payment → £800 net paid, £2,200 outstanding
-- [ ] A reversal cannot exceed its original payment's unreversed amount
-- [ ] Repeating the same payment command does not record it twice
+Setup: a round with a £10,000 budget; an approved £3,000 award with one
+"before payment" condition; a treasurer account (`grants_pay`).
+
+- [ ] Rotary Grants → Payments lists the award as Unpaid with "1 condition to
+      meet first"; its award page has no payment form yet
+- [ ] Mark the condition met (application page) → the "Record a payment" form
+      appears; it has **no** bank account / sort code fields
+- [ ] Try £5,000 → "more than the £3,000.00 still outstanding"; amount kept
+- [ ] Record £1,000 by bank transfer with a reference → ledger shows it; Part
+      paid; outstanding £2,000. The round's available-to-award is **unchanged**
+      (docs/06: budget £10,000, approval £3,000, payment £1,000 → £7,000
+      available, £1,000 net paid, £2,000 outstanding)
+- [ ] Press Back and submit the same form again → "already been saved",
+      still one payment
+- [ ] Reverse £200 of it with a reason, leaving "money was returned"
+      unticked → shown as "Ledger correction only"; net paid £800,
+      outstanding £2,200, approval still £3,000
+- [ ] A reversal larger than the payment's remaining £800 is refused
+- [ ] Pay the remaining £2,200 by cheque → Paid; no further payment possible
+- [ ] Reopen the application and try to approve £2,500 → refused ("cannot be
+      less than the £3,000.00 already paid"); try to decline → refused
+- [ ] A cancelled award can't be paid
+- [ ] A decision maker or reviewer sees the ledger but no forms; an editor is
+      refused the Payments screen (403)
 
 ## Section 9 — Reports and exports (G09)
 
