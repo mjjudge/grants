@@ -461,6 +461,9 @@ different permission states.
 
 ## Section 10 — Historical import (G10)
 
+**Not in the first release** — deferred, no historical data (DEC-017). Skip
+this section.
+
 - [ ] Dry run changes no records
 - [ ] Reimporting a committed batch does not duplicate awards/payments
 - [ ] Unknown historical amount/date is stored as unknown, not zero or invented

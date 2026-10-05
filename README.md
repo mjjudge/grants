@@ -74,8 +74,8 @@ the `grants_*` capabilities to Administrator only (never Editor), and provides:
 - **Settings** — help email, staff notification recipients, privacy notice
 - **Access** (administrators) — who holds which capability
 
-No historical import or privacy tooling yet. See `backlog/DECISIONS.md`
-DEC-007 to DEC-016.
+No privacy tooling yet; historical import is deferred (no historical data —
+DEC-017). See `backlog/DECISIONS.md` DEC-007 to DEC-017.
 
 ---
 
@@ -155,8 +155,8 @@ cycle is required on the live site to run it** — see `CLAUDE.md` and
    across the sibling plugins' release history.
 2. Read `docs/00-proposal.md` through `docs/08-source-notes.md` for the product
    brief, and `docs/grants-discovery.md` for the evidence it's grounded in.
-3. Read `backlog/BACKLOG.md` for the ordered task list (G00–G09 are done;
-   G10 is next) and `backlog/DECISIONS.md` for what's already been decided.
+3. Read `backlog/BACKLOG.md` for the ordered task list (G00–G09 are done,
+   G10 is deferred; G11 is next) and `backlog/DECISIONS.md` for what's already been decided.
 4. Confirm the still-open rows in `docs/07-decisions-and-launch.md` with the
    project owner before opening a live funding round — none of them are
    guessed, and none should be.

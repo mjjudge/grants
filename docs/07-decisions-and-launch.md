@@ -36,6 +36,10 @@ install. They prevent opening an inadequately configured live funding round.
 
 ## Historical import
 
+**Deferred (DEC-017):** this club has no historical grant records, so no
+importer is built for the first release. The design below is kept for any
+future need.
+
 Collect previous recipient lists from committee or treasurer records; none were
 supplied with this request. Proposed CSV columns: source_record_id,
 organisation_name, charity_number, town, round_label, fund_name, campaign_year,
